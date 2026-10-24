@@ -1,0 +1,79 @@
+name: Build GoldPlayer PS4 PKG
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Compile GoldPlayer Homebrew PKG
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_ROLL_FORWARD: Major
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Installer les dépendances Clang & LLVM
+        run: sudo apt-get update && sudo apt-get install -y clang lld
+
+      - name: Installer libssl 1.1 pour OpenOrbis
+        run: |
+          wget -q -O libssl1.1.deb http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb || wget -q -O libssl1.1.deb https://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb
+          sudo dpkg -i libssl1.1.deb
+
+      - name: Télécharger la Toolchain OpenOrbis PS4 (v0.5.4)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          mkdir -p $HOME/oo
+          gh release download v0.5.4 --repo OpenOrbis/OpenOrbis-PS4-Toolchain --pattern '*.tar.gz' --dir $HOME/oo
+          for f in $HOME/oo/*.tar.gz; do tar -xzf "$f" -C $HOME/oo; done
+          TC=$(dirname "$(find $HOME/oo -name link.x | head -1)")
+          echo "OO_PS4_TOOLCHAIN=$TC" >> $GITHUB_ENV
+          chmod -R +x "$TC/bin/linux" || true
+
+      - name: Compiler GoldPlayer (OpenOrbis + SDL2 + Freetype + GoldHEN REST API)
+        run: |
+          mkdir -p $HOME/work
+          cp -r "$OO_PS4_TOOLCHAIN/samples/SDL2" $HOME/work/SDL2
+          cp -r "$OO_PS4_TOOLCHAIN/samples/_common" $HOME/work/_common
+          
+          # Copier les fichiers sources du projet GoldPlayer s'ils existent
+          if [ -d "src_ps4" ]; then
+            cp -r src_ps4/* $HOME/work/SDL2/SDL2/ 2>/dev/null || true
+          fi
+          if [ -f "main.cpp" ]; then
+            cp main.cpp $HOME/work/SDL2/SDL2/ 2>/dev/null || true
+          fi
+          if [ -f "m3u.hpp" ]; then
+            cp m3u.hpp $HOME/work/SDL2/SDL2/ 2>/dev/null || true
+          fi
+          if [ -f "m3u.cpp" ]; then
+            cp m3u.cpp $HOME/work/SDL2/SDL2/ 2>/dev/null || true
+          fi
+          
+          cd $HOME/work/SDL2
+          
+          # Configuration du Makefile pour GoldPlayer
+          sed -i 's/^TITLE .*/TITLE := GoldPlayer/' Makefile
+          sed -i 's/^TITLE_ID .*/TITLE_ID := GOLD00001/' Makefile
+          sed -i 's/^CONTENT_ID .*/CONTENT_ID := IV0000-GOLD00001_00-GOLDPLAYER00000/' Makefile
+          
+          echo "=== Lancement de la compilation du package PKG ==="
+          make
+          
+          mkdir -p $GITHUB_WORKSPACE/out
+          find "$HOME/work/SDL2" -name '*.pkg' -exec cp {} $GITHUB_WORKSPACE/out/ \;
+          echo "=== Fichier PKG généré avec succès ==="
+          ls -la $GITHUB_WORKSPACE/out
+
+      - name: Déposer le PKG en Artifact Téléchargeable
+        uses: actions/upload-artifact@v4
+        with:
+          name: GoldPlayer-PS4-PKG
+          path: out/*.pkg

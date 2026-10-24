@@ -2,5 +2,7 @@
   "name": "GoldPlayer PS4 - Lecteur Multimédia & IPTV GoldHEN",
   "description": "Application multimédia ultra-légère pour PS4 Jailbreak (GoldHEN) : lecteur vidéo USB, gestionnaire IPTV M3U, lanceur de jeux PS4 et exportateur de PKG OpenOrbis.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

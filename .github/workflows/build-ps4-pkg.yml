@@ -43,7 +43,7 @@ jobs:
           cp -r "$OO_PS4_TOOLCHAIN/samples/SDL2" $HOME/work/SDL2
           cp -r "$OO_PS4_TOOLCHAIN/samples/_common" $HOME/work/_common
           
-          # Copier les fichiers sources du projet GoldPlayer s'ils existent
+          # Copier les fichiers sources s'ils existent
           if [ -d "src_ps4" ]; then
             cp -r src_ps4/* $HOME/work/SDL2/SDL2/ 2>/dev/null || true
           fi
@@ -59,17 +59,17 @@ jobs:
           
           cd $HOME/work/SDL2
           
-          # Configuration du Makefile pour GoldPlayer
+          # Configuration stricte du Makefile (CONTENT_ID a 36 caracteres exacts)
           sed -i 's/^TITLE .*/TITLE := GoldPlayer/' Makefile
           sed -i 's/^TITLE_ID .*/TITLE_ID := GOLD00001/' Makefile
-          sed -i 's/^CONTENT_ID .*/CONTENT_ID := IV0000-GOLD00001_00-GOLDPLAYER00000/' Makefile
+          sed -i 's/^CONTENT_ID .*/CONTENT_ID := IV0000-GOLD00001_00-GOLDPLAYER000000/' Makefile
           
           echo "=== Lancement de la compilation du package PKG ==="
           make
           
           mkdir -p $GITHUB_WORKSPACE/out
           find "$HOME/work/SDL2" -name '*.pkg' -exec cp {} $GITHUB_WORKSPACE/out/ \;
-          echo "=== Fichier PKG généré avec succès ==="
+          echo "=== Fichier PKG genere avec succes ==="
           ls -la $GITHUB_WORKSPACE/out
 
       - name: Déposer le PKG en Artifact Téléchargeable

@@ -139,7 +139,6 @@ jobs:
           #include "Game.h"
           #include "../../_common/log.h"
           #include "m3u.hpp"
-          #include "m3u.cpp"
 
           #define FRAME_WIDTH     1920
           #define FRAME_HEIGHT    1080

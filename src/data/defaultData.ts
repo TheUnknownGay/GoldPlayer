@@ -692,14 +692,10 @@ jobs:
           }
           EOF
 
-          # 4. Nettoyage de l'ancien jeu d'exemple (Enemy, Player, HUD, Game)
-          rm -f SDL2/Enemy.cpp SDL2/Player.cpp SDL2/Projectile.cpp SDL2/HUD.cpp SDL2/Game.cpp
-
-          # 5. Configuration Makefile : ne compiler QUE GoldPlayer (main.cpp et m3u.cpp)
+          # 4. Configuration Makefile standard OpenOrbis (Clang)
           sed -i 's/^TITLE .*/TITLE := GoldPlayer/' Makefile
           sed -i 's/^TITLE_ID .*/TITLE_ID := GOLD00001/' Makefile
           sed -i 's/^CONTENT_ID .*/CONTENT_ID := IV0000-GOLD00001_00-GOLDPLAYER000000/' Makefile
-          sed -i 's/^OBJS .*/OBJS := SDL2\\/main.o SDL2\\/m3u.o/' Makefile
 
           echo "=== Compilation de GoldPlayer en cours ==="
           make

@@ -139,6 +139,7 @@ jobs:
           #include "Game.h"
           #include "../../_common/log.h"
           #include "m3u.hpp"
+          #include "m3u.cpp"
 
           #define FRAME_WIDTH     1920
           #define FRAME_HEIGHT    1080
@@ -147,14 +148,12 @@ jobs:
           SDL_Window* window = NULL;
           SDL_Renderer* renderer = NULL;
 
-          // Dessin d'un rectangle plein
           static void drawRect(SDL_Renderer* r, int x, int y, int w, int h, int cr, int cg, int cb, int a = 255) {
               SDL_SetRenderDrawColor(r, cr, cg, cb, a);
               SDL_Rect q = {x, y, w, h};
               SDL_RenderFillRect(r, &q);
           }
 
-          // Structure d'un jeu PS4 installe
           struct PS4GameItem {
               const char* titleId;
               const char* name;
@@ -162,7 +161,6 @@ jobs:
               const char* location;
           };
 
-          // Structure d'un fichier USB
           struct MediaFileItem {
               const char* name;
               const char* path;
@@ -170,7 +168,6 @@ jobs:
               const char* format;
           };
 
-          // Liste des jeux PS4 installes
           static const PS4GameItem g_games[] = {
               {"CUSA07410", "God of War", "45.3 Go", "/user/app"},
               {"CUSA03173", "Bloodborne", "29.8 Go", "/user/app"},
@@ -181,7 +178,6 @@ jobs:
           };
           static const int g_gamesCount = 6;
 
-          // Liste des fichiers media sur disque USB
           static const MediaFileItem g_files[] = {
               {"Tears_of_Steel_UHD.mp4", "/mnt/usb0/Films/Tears_of_Steel_UHD.mp4", "12:14", "MP4"},
               {"Big_Buck_Bunny_1080p.mp4", "/mnt/usb0/Animation/Big_Buck_Bunny.mp4", "09:56", "MP4"},
@@ -190,7 +186,6 @@ jobs:
           };
           static const int g_filesCount = 4;
 
-          // Playlist IPTV par defaut
           static const char* defaultM3U =
               "#EXTM3U\n"
               "#EXTINF:-1 group-title=\"Actualites\",France 24 HD (Francais)\n"
@@ -204,7 +199,6 @@ jobs:
               "#EXTINF:-1 group-title=\"Culture\",Arte Concert Live\n"
               "https://artelive-lh.akamaihd.net/i/artelive_de@393591/master.m3u8\n";
 
-          // Lancement d'un jeu via GoldHEN REST API (Port 2128)
           static bool launchTitleViaGoldHEN(const char* titleId) {
               DEBUGLOG << "GoldPlayer: Envoi requete de lancement GoldHEN pour " << titleId;
               int sock = socket(AF_INET, SOCK_STREAM, 0);
@@ -216,7 +210,6 @@ jobs:
               serv_addr.sin_port = htons(2128);
               serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
 
-              // Connexion rapide avec timeout
               struct timeval tv;
               tv.tv_sec = 1;
               tv.tv_usec = 0;
@@ -240,7 +233,6 @@ jobs:
               DEBUGLOG << "GoldPlayer: Initialisation...";
 
               if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
-                  DEBUGLOG << "Erreur SDL: " << SDL_GetError();
                   return -1;
               }
 
@@ -321,7 +313,6 @@ jobs:
                   drawRect(renderer, 126, 26, 180, 28, 255, 255, 255);
 
                   // 3. Onglets de Navigation (Accueil & Jeux | IPTV | USB | A propos)
-                  const char* tabNames[] = {"1. Accueil & Jeux PS4", "2. IPTV & Chaines", "3. Disque USB", "4. A propos"};
                   for (int t = 0; t < 4; t++) {
                       int tx = 400 + t * 290;
                       if (t == currentTab) {
@@ -334,31 +325,25 @@ jobs:
                   // 4. Contenu selon l'onglet selectionne
                   if (currentTab == 0) {
                       // ONGLET ACCUEIL & JEUX PS4
-                      drawRect(renderer, 80, 110, 800, 40, 234, 179, 8); // Titre section
+                      drawRect(renderer, 80, 110, 800, 40, 234, 179, 8);
 
                       for (int i = 0; i < g_gamesCount; i++) {
                           int gy = 180 + i * 115;
                           if (i == selectedIndex) {
-                              drawRect(renderer, 80, gy, 1200, 100, 234, 179, 8); // Contour selection dore
+                              drawRect(renderer, 80, gy, 1200, 100, 234, 179, 8);
                               drawRect(renderer, 84, gy + 4, 1192, 92, 25, 32, 45);
                           } else {
                               drawRect(renderer, 80, gy, 1200, 100, 20, 26, 38);
                           }
-                          // Vignette / Pochette
                           drawRect(renderer, 95, gy + 10, 110, 80, 45, 55, 75);
-                          // Title ID badge
                           drawRect(renderer, 230, gy + 15, 140, 30, 234, 179, 8);
-                          // Nom du jeu
                           drawRect(renderer, 390, gy + 18, 380, 24, 255, 255, 255);
-                          // Taille & Emplacement
                           drawRect(renderer, 230, gy + 55, 200, 20, 140, 160, 180);
-                          // Bouton Lancer
                           drawRect(renderer, 1080, gy + 25, 160, 50, 234, 179, 8);
                       }
 
-                      // Volet lateral d'informations
                       drawRect(renderer, 1340, 180, 500, 600, 16, 20, 30);
-                      drawRect(renderer, 1360, 210, 460, 240, 35, 45, 65); // Preview
+                      drawRect(renderer, 1360, 210, 460, 240, 35, 45, 65);
                       drawRect(renderer, 1360, 480, 300, 30, 234, 179, 8);
                       drawRect(renderer, 1360, 530, 420, 80, 25, 35, 50);
 
@@ -375,18 +360,17 @@ jobs:
                           } else {
                               drawRect(renderer, 80, cy, 1400, 90, 20, 26, 38);
                           }
-                          drawRect(renderer, 100, cy + 15, 60, 60, 234, 179, 8); // Logo TV
-                          drawRect(renderer, 180, cy + 25, 500, 25, 255, 255, 255); // Chaine
-                          drawRect(renderer, 180, cy + 55, 250, 18, 120, 140, 160); // Categorie
-                          drawRect(renderer, 1300, cy + 25, 140, 40, 40, 180, 90); // Badge FHD
+                          drawRect(renderer, 100, cy + 15, 60, 60, 234, 179, 8);
+                          drawRect(renderer, 180, cy + 25, 500, 25, 255, 255, 255);
+                          drawRect(renderer, 180, cy + 55, 250, 18, 120, 140, 160);
+                          drawRect(renderer, 1300, cy + 25, 140, 40, 40, 180, 90);
                       }
 
                   } else if (currentTab == 2) {
                       // ONGLET DISQUE USB
                       drawRect(renderer, 80, 110, 800, 40, 234, 179, 8);
-                      // Cartes des disques montes
-                      drawRect(renderer, 80, 180, 550, 120, 25, 35, 50); // /mnt/usb0
-                      drawRect(renderer, 660, 180, 550, 120, 25, 35, 50); // /mnt/usb1
+                      drawRect(renderer, 80, 180, 550, 120, 25, 35, 50);
+                      drawRect(renderer, 660, 180, 550, 120, 25, 35, 50);
 
                       for (int i = 0; i < g_filesCount; i++) {
                           int fy = 340 + i * 110;
@@ -397,36 +381,30 @@ jobs:
                               drawRect(renderer, 80, fy, 1400, 90, 20, 26, 38);
                           }
                           drawRect(renderer, 100, fy + 15, 100, 60, 35, 45, 65);
-                          drawRect(renderer, 220, fy + 22, 600, 25, 255, 255, 255); // Nom
-                          drawRect(renderer, 220, fy + 54, 400, 18, 120, 140, 160); // Chemin
-                          drawRect(renderer, 1320, fy + 25, 120, 40, 234, 179, 8); // Lire
+                          drawRect(renderer, 220, fy + 22, 600, 25, 255, 255, 255);
+                          drawRect(renderer, 220, fy + 54, 400, 18, 120, 140, 160);
+                          drawRect(renderer, 1320, fy + 25, 120, 40, 234, 179, 8);
                       }
 
                   } else if (currentTab == 3) {
                       // ONGLET A PROPOS - DJAFFAR MOURTADHOI
                       drawRect(renderer, 80, 110, 800, 40, 234, 179, 8);
-                      // Grande fiche contact
                       drawRect(renderer, 80, 180, 1400, 520, 20, 26, 38);
                       drawRect(renderer, 80, 180, 1400, 8, 234, 179, 8);
 
-                      // Logo Crest
                       drawRect(renderer, 130, 230, 120, 120, 234, 179, 8);
 
-                      // Lignes textes des informations personnelles
-                      drawRect(renderer, 290, 230, 450, 36, 255, 255, 255); // DJAFFAR MOURTADHOI
-                      drawRect(renderer, 290, 280, 300, 22, 234, 179, 8); // Designer & Developpeur
+                      drawRect(renderer, 290, 230, 450, 36, 255, 255, 255);
+                      drawRect(renderer, 290, 280, 300, 22, 234, 179, 8);
                       
-                      // Blocs coordonnees
-                      drawRect(renderer, 290, 340, 500, 65, 14, 18, 26); // Social : @Mourtadhoi.Art
-                      drawRect(renderer, 830, 340, 500, 65, 14, 18, 26); // Tel : 0693521495
-                      drawRect(renderer, 290, 430, 1040, 65, 14, 18, 26); // Mail : djaffar.art@gmail.com
+                      drawRect(renderer, 290, 340, 500, 65, 14, 18, 26);
+                      drawRect(renderer, 830, 340, 500, 65, 14, 18, 26);
+                      drawRect(renderer, 290, 430, 1040, 65, 14, 18, 26);
 
-                      // Specifications PKG
-                      drawRect(renderer, 290, 520, 320, 50, 30, 38, 55); // Title ID : GOLD00001
-                      drawRect(renderer, 640, 520, 690, 50, 30, 38, 55); // Content ID : IV0000-GOLD00001_00-GOLDPLAYER000000
+                      drawRect(renderer, 290, 520, 320, 50, 30, 38, 55);
+                      drawRect(renderer, 640, 520, 690, 50, 30, 38, 55);
                   }
 
-                  // 5. Notification Toast GoldHEN si active
                   if (bannerTimer > 0) {
                       bannerTimer--;
                       drawRect(renderer, 1200, 100, 640, 70, 234, 179, 8);
@@ -434,17 +412,11 @@ jobs:
                       drawRect(renderer, 1220, 120, 32, 32, 234, 179, 8);
                   }
 
-                  // 6. Barre d'aide manette DualShock 4 en bas d'ecran
                   drawRect(renderer, 0, 1010, FRAME_WIDTH, 70, 14, 18, 26);
-                  // Bouton Croix (✕)
                   drawRect(renderer, 80, 1030, 28, 28, 40, 120, 230);
-                  // Bouton Rond (◯)
                   drawRect(renderer, 320, 1030, 28, 28, 230, 50, 50);
-                  // Bouton Carre (▢)
                   drawRect(renderer, 520, 1030, 28, 28, 230, 80, 180);
-                  // Bouton Triangle (△)
                   drawRect(renderer, 720, 1030, 28, 28, 50, 200, 100);
-                  // L1 / R1
                   drawRect(renderer, 950, 1030, 60, 28, 60, 70, 90);
                   drawRect(renderer, 1030, 1030, 60, 28, 60, 70, 90);
 
@@ -458,14 +430,10 @@ jobs:
           }
           EOF
 
-          # 4. Nettoyage de l'ancien jeu d'exemple (Enemy, Player, HUD, Game)
-          rm -f SDL2/Enemy.cpp SDL2/Player.cpp SDL2/Projectile.cpp SDL2/HUD.cpp SDL2/Game.cpp
-
-          # 5. Configuration Makefile : ne compiler QUE GoldPlayer (main.cpp et m3u.cpp)
+          # 4. Configuration Makefile standard OpenOrbis (Clang)
           sed -i 's/^TITLE .*/TITLE := GoldPlayer/' Makefile
           sed -i 's/^TITLE_ID .*/TITLE_ID := GOLD00001/' Makefile
           sed -i 's/^CONTENT_ID .*/CONTENT_ID := IV0000-GOLD00001_00-GOLDPLAYER000000/' Makefile
-          sed -i 's/^OBJS .*/OBJS := SDL2\/main.o SDL2\/m3u.o/' Makefile
 
           echo "=== Compilation de GoldPlayer en cours ==="
           make

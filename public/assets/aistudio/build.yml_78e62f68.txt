@@ -1,0 +1,264 @@
+name: Build PS4 PKG
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DOTNET_ROLL_FORWARD: Major
+      DOTNET_SYSTEM_GLOBALIZATION_INVARIANT: "1"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Dependances
+        run: sudo apt-get update && sudo apt-get install -y clang lld
+
+      - name: libssl 1.1
+        run: |
+          wget -q -O libssl1.1.deb http://archive.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2_amd64.deb || wget -q -O libssl1.1.deb https://security.ubuntu.com/ubuntu/pool/main/o/openssl/libssl1.1_1.1.1f-1ubuntu2.24_amd64.deb
+          sudo dpkg -i libssl1.1.deb
+
+      - name: Telecharger OpenOrbis
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          shopt -s nullglob
+          mkdir -p $HOME/oo
+          gh release download v0.5.4 --repo OpenOrbis/OpenOrbis-PS4-Toolchain --pattern '*.tar.gz' --dir $HOME/oo
+          for f in $HOME/oo/*.tar.gz; do tar -xzf "$f" -C $HOME/oo; done
+          TC=$(dirname "$(find $HOME/oo -name link.x | head -1)")
+          echo "OO_PS4_TOOLCHAIN=$TC" >> $GITHUB_ENV
+          chmod -R +x "$TC/bin/linux" || true
+
+      - name: Compiler KodiPS4
+        run: |
+          mkdir -p $HOME/work
+          cp -r "$OO_PS4_TOOLCHAIN/samples/SDL2" $HOME/work/SDL2
+          cp -r "$OO_PS4_TOOLCHAIN/samples/_common" $HOME/work/_common
+          cd $HOME/work/SDL2
+          cat > SDL2/m3u.hpp <<'EOF'
+          #pragma once
+          #include <string>
+          #include <vector>
+          struct Channel {
+              std::string name, url, group, tvgId, tvgName, logo;
+          };
+          std::vector<Channel> parseM3U(const std::string& text);
+          EOF
+          cat > SDL2/m3u.cpp <<'EOF'
+          #include "m3u.hpp"
+          static std::string trim(const std::string& s) {
+              size_t a = 0, b = s.size();
+              while (a < b && (s[a] == ' ' || s[a] == '\t' || s[a] == '\r' || s[a] == '\n')) a++;
+              while (b > a && (s[b-1] == ' ' || s[b-1] == '\t' || s[b-1] == '\r' || s[b-1] == '\n')) b--;
+              return s.substr(a, b - a);
+          }
+          static std::string attr(const std::string& line, const std::string& key) {
+              std::string pat = key + "=\"";
+              size_t p = line.find(pat);
+              if (p == std::string::npos) return "";
+              p += pat.size();
+              size_t e = line.find('"', p);
+              if (e == std::string::npos) return "";
+              return line.substr(p, e - p);
+          }
+          std::vector<Channel> parseM3U(const std::string& textIn) {
+              std::vector<Channel> out;
+              std::string text = textIn;
+              if (text.size() >= 3 && (unsigned char)text[0] == 0xEF && (unsigned char)text[1] == 0xBB && (unsigned char)text[2] == 0xBF) text.erase(0, 3);
+              Channel cur;
+              bool pending = false;
+              size_t pos = 0;
+              while (pos <= text.size()) {
+                  size_t nl = text.find('\n', pos);
+                  if (nl == std::string::npos) nl = text.size();
+                  std::string line = trim(text.substr(pos, nl - pos));
+                  pos = nl + 1;
+                  if (line.empty()) continue;
+                  if (line.compare(0, 8, "#EXTINF:") == 0) {
+                      cur = Channel();
+                      pending = true;
+                      cur.tvgId = attr(line, "tvg-id");
+                      cur.tvgName = attr(line, "tvg-name");
+                      cur.logo = attr(line, "tvg-logo");
+                      cur.group = attr(line, "group-title");
+                      size_t q = line.rfind('"');
+                      size_t c = line.find(',', q == std::string::npos ? 0 : q);
+                      if (c != std::string::npos) cur.name = trim(line.substr(c + 1));
+                      if (cur.name.empty()) cur.name = cur.tvgName;
+                  } else if (line.compare(0, 8, "#EXTGRP:") == 0) {
+                      if (pending && cur.group.empty()) cur.group = trim(line.substr(8));
+                  } else if (line[0] != '#') {
+                      if (!pending) { cur = Channel(); cur.name = line; }
+                      cur.url = line;
+                      out.push_back(cur);
+                      pending = false;
+                  }
+              }
+              return out;
+          }
+          EOF
+          cat > SDL2/main.cpp <<'EOF'
+          #include <sstream>
+          #include <cstdio>
+          #include <orbis/libkernel.h>
+          #include <orbis/Sysmodule.h>
+
+          #include "Game.h"
+
+          #include "../../_common/log.h"
+          #include "m3u.hpp"
+
+          #define FRAME_WIDTH     1920
+          #define FRAME_HEIGHT    1080
+
+          std::stringstream debugLogStream;
+
+          SDL_Window* window;
+          SDL_Renderer* renderer;
+
+          static const char* kpSample =
+              "#EXTM3U\n"
+              "#EXTINF:-1 group-title=\"News\",Chaine 1\n"
+              "http://example.com/1.m3u8\n"
+              "#EXTINF:-1 group-title=\"Sport\",Chaine 2\n"
+              "http://example.com/2.m3u8\n"
+              "#EXTINF:-1,Chaine 3\n"
+              "http://example.com/3.ts\n";
+
+          static void kpBox(SDL_Renderer* r, int x, int y, int w, int h, int cr, int cg, int cb)
+          {
+              SDL_SetRenderDrawColor(r, cr, cg, cb, 255);
+              SDL_Rect q = {x, y, w, h};
+              SDL_RenderFillRect(r, &q);
+          }
+
+          int main(int argc, char* args[])
+          {
+              int rc;
+              SDL_Surface* windowSurface;
+
+              setvbuf(stdout, NULL, _IONBF, 0);
+
+              DEBUGLOG << "KodiPS4: Initializing SDL";
+
+              if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0)
+              {
+                  DEBUGLOG << "Failed to initialize SDL: " << SDL_GetError();
+                  for (;;);
+              }
+
+              DEBUGLOG << "KodiPS4: Initializing TTF";
+
+              rc = sceSysmoduleLoadModule(ORBIS_SYSMODULE_FREETYPE_OL);
+
+              if (rc < 0)
+              {
+                  DEBUGLOG << "Failed to load freetype module";
+                  for (;;);
+              }
+
+              rc = FT_Init_FreeType(&ftLib);
+
+              if (rc < 0)
+              {
+                  for (;;);
+              }
+
+              DEBUGLOG << "KodiPS4: Creating a window";
+
+              window = SDL_CreateWindow("main", SDL_WINDOWPOS_UNDEFINED,
+                  SDL_WINDOWPOS_UNDEFINED, FRAME_WIDTH, FRAME_HEIGHT, 0);
+
+              if (!window)
+              {
+                  DEBUGLOG << "Failed to create window: " << SDL_GetError();
+                  for (;;);
+              }
+
+              windowSurface = SDL_GetWindowSurface(window);
+              renderer = SDL_CreateSoftwareRenderer(windowSurface);
+
+              if (!renderer)
+              {
+                  DEBUGLOG << "Failed to create software renderer: " << SDL_GetError();
+                  for (;;);
+              }
+
+              SDL_Joystick* joy = NULL;
+              if (SDL_NumJoysticks() > 0) joy = SDL_JoystickOpen(0);
+
+              int channels = (int)parseM3U(kpSample).size();
+              bool btn[32] = {false};
+              int hat = 0, sel = 0;
+              const int kCount = 5;
+              bool run = true;
+
+              DEBUGLOG << "KodiPS4: Entering draw loop...";
+
+              while (run)
+              {
+                  SDL_Event e;
+                  while (SDL_PollEvent(&e))
+                  {
+                      if (e.type == SDL_QUIT) run = false;
+                      if (e.type == SDL_JOYBUTTONDOWN && e.jbutton.button < 32) btn[e.jbutton.button] = true;
+                      if (e.type == SDL_JOYBUTTONUP && e.jbutton.button < 32) btn[e.jbutton.button] = false;
+                      if (e.type == SDL_JOYHATMOTION)
+                      {
+                          hat = e.jhat.value;
+                          if (hat == SDL_HAT_UP) sel = (sel + kCount - 1) % kCount;
+                          if (hat == SDL_HAT_DOWN) sel = (sel + 1) % kCount;
+                      }
+                  }
+
+                  kpBox(renderer, 0, 0, FRAME_WIDTH, FRAME_HEIGHT, 18, 22, 32);
+
+                  for (int i = 0; i < kCount; i++)
+                  {
+                      if (i == sel) kpBox(renderer, 120, 200 + i * 150, 600, 120, 30, 144, 255);
+                      else kpBox(renderer, 120, 200 + i * 150, 600, 120, 45, 52, 70);
+                  }
+
+                  if (joy) kpBox(renderer, 900, 120, 80, 80, 40, 200, 80);
+                  else kpBox(renderer, 900, 120, 80, 80, 220, 50, 50);
+
+                  for (int i = 0; i < 16; i++)
+                  {
+                      int x = 900 + (i % 8) * 90, y = 300 + (i / 8) * 90;
+                      if (btn[i]) kpBox(renderer, x, y, 70, 70, 255, 200, 0);
+                      else kpBox(renderer, x, y, 70, 70, 60, 60, 70);
+                  }
+
+                  int masks[4] = {SDL_HAT_UP, SDL_HAT_RIGHT, SDL_HAT_DOWN, SDL_HAT_LEFT};
+                  for (int i = 0; i < 4; i++)
+                  {
+                      if (hat & masks[i]) kpBox(renderer, 900 + i * 90, 520, 70, 70, 255, 120, 0);
+                      else kpBox(renderer, 900 + i * 90, 520, 70, 70, 60, 60, 70);
+                  }
+
+                  for (int i = 0; i < channels; i++) kpBox(renderer, 900 + i * 60, 700, 40, 40, 40, 200, 80);
+
+                  SDL_UpdateWindowSurface(window);
+                  SDL_Delay(16);
+              }
+
+              SDL_Quit();
+              return 0;
+          }
+          EOF
+          sed -i 's/^TITLE .*/TITLE := KodiPS4/' Makefile
+          sed -i 's/^TITLE_ID .*/TITLE_ID := BREW00091/' Makefile
+          sed -i 's/^CONTENT_ID .*/CONTENT_ID := IV0000-BREW00091_00-KODIPS4000000000/' Makefile
+          echo "=== Compilation ==="
+          make
+          mkdir -p $GITHUB_WORKSPACE/out
+          find "$HOME/work/SDL2" -name '*.pkg' -exec cp {} $GITHUB_WORKSPACE/out/ \;
+          ls -la $GITHUB_WORKSPACE/out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: kodips4-pkg
+          path: out/*.pkg

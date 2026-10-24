@@ -259,7 +259,7 @@ export const GithubPkgView: React.FC = () => {
       </div>
 
       {/* 4-Step Walkthrough Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-7">
         <div className="bg-slate-900/60 border border-slate-800 rounded-xl p-4">
           <div className="flex items-center justify-between mb-2">
             <span className="font-mono text-xs font-bold text-amber-400">ÉTAPE 1</span>
@@ -276,9 +276,9 @@ export const GithubPkgView: React.FC = () => {
             <span className="font-mono text-xs font-bold text-amber-400">ÉTAPE 2</span>
             <Terminal className="w-4 h-4 text-slate-500" />
           </div>
-          <h4 className="text-xs font-semibold text-white mb-1">Créer un Dépôt GitHub</h4>
+          <h4 className="text-xs font-semibold text-white mb-1">Dossier .github/workflows/</h4>
           <p className="text-[11px] text-slate-400 leading-relaxed">
-            Sur GitHub, créez un nouveau dépôt et poussez l'archive décompressée sur votre branche principale.
+            Le fichier YAML doit OBLIGATOIREMENT être dans <code className="text-amber-400">.github/workflows/</code> avec le point initial.
           </p>
         </div>
 
@@ -287,9 +287,9 @@ export const GithubPkgView: React.FC = () => {
             <span className="font-mono text-xs font-bold text-amber-400">ÉTAPE 3</span>
             <Cpu className="w-4 h-4 text-slate-500" />
           </div>
-          <h4 className="text-xs font-semibold text-white mb-1">Compilation Automatique</h4>
+          <h4 className="text-xs font-semibold text-white mb-1">Activer les Actions</h4>
           <p className="text-[11px] text-slate-400 leading-relaxed">
-            GitHub Actions télécharge la Toolchain OpenOrbis v0.5.4 et compile automatiquement votre PKG.
+            Sur GitHub dans l'onglet "Actions", cliquez sur le bouton vert d'activation si demandé.
           </p>
         </div>
 
@@ -298,12 +298,67 @@ export const GithubPkgView: React.FC = () => {
             <span className="font-mono text-xs font-bold text-amber-400">ÉTAPE 4</span>
             <Package className="w-4 h-4 text-slate-500" />
           </div>
-          <h4 className="text-xs font-semibold text-white mb-1">Installation sur la PS4</h4>
+          <h4 className="text-xs font-semibold text-white mb-1">Télécharger le PKG</h4>
           <p className="text-[11px] text-slate-400 leading-relaxed">
-            Récupérez le .pkg dans "Artifacts", placez-le sur votre clé USB et installez via GoldHEN Package Installer.
+            Récupérez le .pkg dans la section "Artifacts" et installez-le avec GoldHEN Package Installer.
           </p>
         </div>
       </div>
+
+      {/* Troubleshooting Guide Box for Missing Actions */}
+      <div className="mb-8 rounded-2xl border border-amber-500/40 bg-gradient-to-r from-amber-500/10 via-slate-900 to-slate-950 p-5 shadow-lg">
+        <div className="flex items-start gap-3">
+          <div className="p-2 rounded-xl bg-amber-400/20 text-amber-400 border border-amber-400/30 shrink-0">
+            <Terminal className="w-5 h-5" />
+          </div>
+          <div className="space-y-3 flex-1">
+            <div>
+              <h3 className="text-sm font-bold text-white flex items-center gap-2">
+                <span>Pourquoi vous ne voyez pas d'action dans GitHub ? Les 3 causes fréquentes :</span>
+              </h3>
+              <p className="text-xs text-slate-300 mt-0.5">
+                GitHub n'affiche les workflows que si des conditions très précises sont respectées :
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs pt-1">
+              <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+                <span className="font-mono font-bold text-amber-400 text-[11px] block">1. Chemin exact du fichier</span>
+                <p className="text-slate-300 leading-relaxed text-[11px]">
+                  Le fichier doit être situé à :
+                </p>
+                <div className="font-mono text-[10px] bg-slate-900 px-2 py-1 rounded text-amber-300 border border-slate-700 select-all">
+                  .github/workflows/build-ps4-pkg.yml
+                </div>
+                <p className="text-[10px] text-slate-400">
+                  ⚠️ Si le dossier s'appelle <code className="text-red-400">github</code> (sans point) ou si le fichier est à la racine, GitHub l'ignore totalement !
+                </p>
+              </div>
+
+              <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+                <span className="font-mono font-bold text-amber-400 text-[11px] block">2. Activer les Actions sur le Dépôt</span>
+                <p className="text-slate-300 leading-relaxed text-[11px]">
+                  Sur un nouveau dépôt, allez dans l'onglet <strong>Actions</strong> de votre projet GitHub.
+                </p>
+                <p className="text-[10px] text-slate-400">
+                  Si un bouton vert apparaît disant <em>"I understand my workflows, go ahead and enable them"</em>, cliquez dessus pour autoriser l'exécution.
+                </p>
+              </div>
+
+              <div className="bg-slate-950/70 border border-slate-800 rounded-xl p-3.5 space-y-1.5">
+                <span className="font-mono font-bold text-amber-400 text-[11px] block">3. Bouton "Run workflow"</span>
+                <p className="text-slate-300 leading-relaxed text-[11px]">
+                  Dans l'onglet <strong>Actions</strong>, cliquez sur <strong>Build GoldPlayer PS4 PKG</strong> dans la liste de gauche.
+                </p>
+                <p className="text-[10px] text-slate-400">
+                  Cliquez ensuite sur le bouton gris <strong>« Run workflow »</strong> à droite puis validez pour forcer le lancement immédiat sans attendre un commit.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       {/* Code Inspector & File Switcher */}
       <div className="bg-slate-900/90 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl">

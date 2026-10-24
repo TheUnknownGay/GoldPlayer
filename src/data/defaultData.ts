@@ -284,8 +284,11 @@ export const DEFAULT_MEDIA_FILES: MediaFile[] = [
 export const GITHUB_WORKFLOW_TEMPLATE = `name: Build GoldPlayer PS4 PKG
 on:
   push:
-    branches: [ "main", "master" ]
   workflow_dispatch:
+
+permissions:
+  contents: write
+
 
 jobs:
   build:

@@ -44,8 +44,9 @@ jobs:
           cp -r "$OO_PS4_TOOLCHAIN/samples/_common" $HOME/work/_common
           cd $HOME/work/SDL2
 
-          # 1. Telechargement de la police matricielle 8x8 publique
+          # 1. Telechargement de la police matricielle 8x8 publique & conversion unsigned char
           wget -q -O SDL2/font8x8.h https://raw.githubusercontent.com/dhepper/font8x8/master/font8x8_basic.h
+          sed -i 's/char font8x8_basic/static const unsigned char font8x8_basic/g' SDL2/font8x8.h
 
           # 2. Header Font Engine pour SDL2 GoldPlayer
           cat > SDL2/font.hpp <<'EOF'
@@ -55,7 +56,7 @@ jobs:
 
           static void drawChar(SDL_Renderer* r, int x, int y, char c, int red, int green, int blue, int scale = 2) {
               if ((unsigned char)c > 127) c = 32;
-              const char* glyph = font8x8_basic[(unsigned char)c];
+              const unsigned char* glyph = font8x8_basic[(unsigned char)c];
               SDL_SetRenderDrawColor(r, red, green, blue, 255);
               for (int row = 0; row < 8; row++) {
                   unsigned char b = glyph[row];

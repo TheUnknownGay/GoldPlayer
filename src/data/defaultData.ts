@@ -8,7 +8,7 @@ export const DEFAULT_ABOUT: DesignerInfo = {
   appTitle: 'GoldPlayer',
   appVersion: 'v1.0.0 Release',
   titleId: 'GOLD00001',
-  contentId: 'IV0000-GOLD00001_00-GOLDPLAYER00000',
+  contentId: 'IV0000-GOLD00001_00-GOLDPLAYER000000',
   toolchain: 'OpenOrbis PS4 Toolchain v0.5.4 & GoldHEN SDK'
 };
 
@@ -335,7 +335,7 @@ jobs:
           # Configuration du Makefile pour GoldPlayer
           sed -i 's/^TITLE .*/TITLE := GoldPlayer/' Makefile
           sed -i 's/^TITLE_ID .*/TITLE_ID := GOLD00001/' Makefile
-          sed -i 's/^CONTENT_ID .*/CONTENT_ID := IV0000-GOLD00001_00-GOLDPLAYER00000/' Makefile
+          sed -i 's/^CONTENT_ID .*/CONTENT_ID := IV0000-GOLD00001_00-GOLDPLAYER000000/' Makefile
           
           echo "=== Lancement de la compilation du package PKG ==="
           make
@@ -356,7 +356,7 @@ export const OPENORBIS_MAIN_CPP = `/**
  * GoldPlayer PS4 - Lecteur Multimédia & IPTV GoldHEN
  * Designer : DJAFFAR MOURTADHOI (@Mourtadhoi.Art)
  * Title ID : GOLD00001
- * Content ID : IV0000-GOLD00001_00-GOLDPLAYER00000
+ * Content ID : IV0000-GOLD00001_00-GOLDPLAYER000000
  */
 
 #include <sstream>

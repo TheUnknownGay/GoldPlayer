@@ -97,7 +97,7 @@ std::vector<Channel> parseM3U(const std::string& textIn) {
 
 const MAKEFILE_CODE = `TITLE       := GoldPlayer
 TITLE_ID    := GOLD00001
-CONTENT_ID  := IV0000-GOLD00001_00-GOLDPLAYER00000
+CONTENT_ID  := IV0000-GOLD00001_00-GOLDPLAYER000000
 VERSION     := 01.00
 
 # OpenOrbis Toolchain configuration
@@ -126,7 +126,7 @@ Application Homebrew native pour PlayStation 4 Jailbreak (FW 5.05 à 11.00) avec
 - **Téléphone** : 0693521495
 - **Email** : djaffar.art@gmail.com
 - **Title ID** : GOLD00001
-- **Content ID** : IV0000-GOLD00001_00-GOLDPLAYER00000
+- **Content ID** : IV0000-GOLD00001_00-GOLDPLAYER000000
 
 ## Instructions de compilation automatique via GitHub Actions :
 1. Créez un nouveau dépôt GitHub (public ou privé).

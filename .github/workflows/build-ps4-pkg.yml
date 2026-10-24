@@ -44,780 +44,613 @@ jobs:
           cp -r "$OO_PS4_TOOLCHAIN/samples/_common" $HOME/work/_common
           cd $HOME/work/SDL2
 
-          # 1. Police 8x8 embarquee pour affichage net du texte (GoldPlayer Font Engine)
+          # 1. Telechargement de la police matricielle 8x8 publique
+          wget -q -O SDL2/font8x8.h https://raw.githubusercontent.com/dhepper/font8x8/master/font8x8_basic.h
+
+          # 2. Header Font Engine pour SDL2 GoldPlayer
           cat > SDL2/font.hpp <<'EOF'
-#pragma once
-#include <SDL2/SDL.h>
-#include <cstdint>
+          #pragma once
+          #include <SDL2/SDL.h>
+          #include "font8x8.h"
 
-static const unsigned char font8x8[128][8] = {
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0000 (nul)
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0001
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0002
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0003
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0004
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0005
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0006
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0007
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0008
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0009
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+000A
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+000B
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+000C
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+000D
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+000E
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+000F
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0010
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0011
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0012
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0013
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0014
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0015
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0016
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0017
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0018
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0019
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+001A
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+001B
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+001C
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+001D
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+001E
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+001F
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0020 (space)
-    { 0x18, 0x3C, 0x3C, 0x18, 0x18, 0x00, 0x18, 0x00},   // U+0021 (!)
-    { 0x36, 0x36, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0022 (")
-    { 0x36, 0x36, 0x7F, 0x36, 0x7F, 0x36, 0x36, 0x00},   // U+0023 (#)
-    { 0x0C, 0x3E, 0x03, 0x1E, 0x30, 0x1F, 0x0C, 0x00},   // U+0024 ($)
-    { 0x00, 0x63, 0x33, 0x18, 0x0C, 0x66, 0x63, 0x00},   // U+0025 (%)
-    { 0x1C, 0x36, 0x1C, 0x6E, 0x3B, 0x33, 0x6E, 0x00},   // U+0026 (&)
-    { 0x06, 0x06, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0027 (')
-    { 0x18, 0x0C, 0x06, 0x06, 0x06, 0x0C, 0x18, 0x00},   // U+0028 (()
-    { 0x06, 0x0C, 0x18, 0x18, 0x18, 0x0C, 0x06, 0x00},   // U+0029 ())
-    { 0x00, 0x66, 0x3C, 0xFF, 0x3C, 0x66, 0x00, 0x00},   // U+002A (*)
-    { 0x00, 0x0C, 0x0C, 0x3F, 0x0C, 0x0C, 0x00, 0x00},   // U+002B (+)
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x0C, 0x0C, 0x06},   // U+002C (,)
-    { 0x00, 0x00, 0x00, 0x3F, 0x00, 0x00, 0x00, 0x00},   // U+002D (-)
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x0C, 0x0C, 0x00},   // U+002E (.)
-    { 0x60, 0x30, 0x18, 0x0C, 0x06, 0x03, 0x01, 0x00},   // U+002F (/)
-    { 0x3E, 0x63, 0x73, 0x7B, 0x6F, 0x67, 0x3E, 0x00},   // U+0030 (0)
-    { 0x0C, 0x0E, 0x0C, 0x0C, 0x0C, 0x0C, 0x3F, 0x00},   // U+0031 (1)
-    { 0x1E, 0x33, 0x30, 0x1C, 0x06, 0x33, 0x3F, 0x00},   // U+0032 (2)
-    { 0x1E, 0x33, 0x30, 0x1C, 0x30, 0x33, 0x1E, 0x00},   // U+0033 (3)
-    { 0x38, 0x3C, 0x36, 0x33, 0x7F, 0x30, 0x78, 0x00},   // U+0034 (4)
-    { 0x3F, 0x03, 0x1F, 0x30, 0x30, 0x33, 0x1E, 0x00},   // U+0035 (5)
-    { 0x1C, 0x06, 0x03, 0x1F, 0x33, 0x33, 0x1E, 0x00},   // U+0036 (6)
-    { 0x3F, 0x33, 0x30, 0x18, 0x0C, 0x0C, 0x0C, 0x00},   // U+0037 (7)
-    { 0x1E, 0x33, 0x33, 0x1E, 0x33, 0x33, 0x1E, 0x00},   // U+0038 (8)
-    { 0x1E, 0x33, 0x33, 0x3E, 0x30, 0x18, 0x0E, 0x00},   // U+0039 (9)
-    { 0x00, 0x0C, 0x0C, 0x00, 0x00, 0x0C, 0x0C, 0x00},   // U+003A (:)
-    { 0x00, 0x0C, 0x0C, 0x00, 0x00, 0x0C, 0x0C, 0x06},   // U+003B (;)
-    { 0x18, 0x0C, 0x06, 0x03, 0x06, 0x0C, 0x18, 0x00},   // U+003C (<)
-    { 0x00, 0x00, 0x3F, 0x00, 0x00, 0x3F, 0x00, 0x00},   // U+003D (=)
-    { 0x06, 0x0C, 0x18, 0x30, 0x18, 0x0C, 0x06, 0x00},   // U+003E (>)
-    { 0x1E, 0x33, 0x30, 0x18, 0x0C, 0x00, 0x0C, 0x00},   // U+003F (?)
-    { 0x3E, 0x63, 0x7B, 0x7B, 0x7B, 0x03, 0x1E, 0x00},   // U+0040 (@)
-    { 0x0C, 0x1E, 0x33, 0x33, 0x3F, 0x33, 0x33, 0x00},   // U+0041 (A)
-    { 0x3F, 0x66, 0x66, 0x3E, 0x66, 0x66, 0x3F, 0x00},   // U+0042 (B)
-    { 0x3C, 0x66, 0x03, 0x03, 0x03, 0x66, 0x3C, 0x00},   // U+0043 (C)
-    { 0x1F, 0x36, 0x66, 0x66, 0x66, 0x36, 0x1F, 0x00},   // U+0044 (D)
-    { 0x7F, 0x46, 0x16, 0x1E, 0x16, 0x46, 0x7F, 0x00},   // U+0045 (E)
-    { 0x7F, 0x46, 0x16, 0x1E, 0x16, 0x06, 0x0F, 0x00},   // U+0046 (F)
-    { 0x3C, 0x66, 0x03, 0x03, 0x73, 0x66, 0x7C, 0x00},   // U+0047 (G)
-    { 0x33, 0x33, 0x33, 0x3F, 0x33, 0x33, 0x33, 0x00},   // U+0048 (H)
-    { 0x1E, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x1E, 0x00},   // U+0049 (I)
-    { 0x78, 0x30, 0x30, 0x30, 0x33, 0x33, 0x1E, 0x00},   // U+004A (J)
-    { 0x67, 0x66, 0x36, 0x1E, 0x36, 0x66, 0x67, 0x00},   // U+004B (K)
-    { 0x0F, 0x06, 0x06, 0x06, 0x46, 0x66, 0x7F, 0x00},   // U+004C (L)
-    { 0x63, 0x77, 0x7F, 0x7F, 0x6B, 0x63, 0x63, 0x00},   // U+004D (M)
-    { 0x63, 0x67, 0x6F, 0x7B, 0x73, 0x63, 0x63, 0x00},   // U+004E (N)
-    { 0x1C, 0x36, 0x63, 0x63, 0x63, 0x36, 0x1C, 0x00},   // U+004F (O)
-    { 0x3F, 0x66, 0x66, 0x3E, 0x06, 0x06, 0x0F, 0x00},   // U+0050 (P)
-    { 0x1E, 0x33, 0x33, 0x33, 0x3B, 0x1E, 0x38, 0x00},   // U+0051 (Q)
-    { 0x3F, 0x66, 0x66, 0x3E, 0x36, 0x66, 0x67, 0x00},   // U+0052 (R)
-    { 0x1E, 0x33, 0x07, 0x0E, 0x38, 0x33, 0x1E, 0x00},   // U+0053 (S)
-    { 0x3F, 0x2D, 0x0C, 0x0C, 0x0C, 0x0C, 0x1E, 0x00},   // U+0054 (T)
-    { 0x33, 0x33, 0x33, 0x33, 0x33, 0x33, 0x3F, 0x00},   // U+0055 (U)
-    { 0x33, 0x33, 0x33, 0x33, 0x33, 0x1E, 0x0C, 0x00},   // U+0056 (V)
-    { 0x63, 0x63, 0x63, 0x6B, 0x7F, 0x77, 0x63, 0x00},   // U+0057 (W)
-    { 0x63, 0x63, 0x36, 0x1C, 0x1C, 0x36, 0x63, 0x00},   // U+0058 (X)
-    { 0x33, 0x33, 0x33, 0x1E, 0x0C, 0x0C, 0x1E, 0x00},   // U+0059 (Y)
-    { 0x7F, 0x63, 0x31, 0x18, 0x4C, 0x66, 0x7F, 0x00},   // U+005A (Z)
-    { 0x1E, 0x06, 0x06, 0x06, 0x06, 0x06, 0x1E, 0x00},   // U+005B ([)
-    { 0x03, 0x06, 0x0C, 0x18, 0x30, 0x60, 0x40, 0x00},   // U+005C (\)
-    { 0x1E, 0x18, 0x18, 0x18, 0x18, 0x18, 0x1E, 0x00},   // U+005D (])
-    { 0x08, 0x1C, 0x36, 0x63, 0x00, 0x00, 0x00, 0x00},   // U+005E (^)
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF},   // U+005F (_)
-    { 0x0C, 0x0C, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+0060 (`)
-    { 0x00, 0x00, 0x1E, 0x30, 0x3E, 0x33, 0x6E, 0x00},   // U+0061 (a)
-    { 0x07, 0x06, 0x06, 0x3E, 0x66, 0x66, 0x3B, 0x00},   // U+0062 (b)
-    { 0x00, 0x00, 0x1E, 0x33, 0x03, 0x33, 0x1E, 0x00},   // U+0063 (c)
-    { 0x38, 0x30, 0x30, 0x3e, 0x33, 0x33, 0x6E, 0x00},   // U+0064 (d)
-    { 0x00, 0x00, 0x1E, 0x33, 0x3f, 0x03, 0x1E, 0x00},   // U+0065 (e)
-    { 0x1C, 0x36, 0x06, 0x0f, 0x06, 0x06, 0x0F, 0x00},   // U+0066 (f)
-    { 0x00, 0x00, 0x6E, 0x33, 0x33, 0x3E, 0x30, 0x1F},   // U+0067 (g)
-    { 0x07, 0x06, 0x36, 0x6E, 0x66, 0x66, 0x67, 0x00},   // U+0068 (h)
-    { 0x0C, 0x00, 0x0E, 0x0C, 0x0C, 0x0C, 0x1E, 0x00},   // U+0069 (i)
-    { 0x30, 0x00, 0x30, 0x30, 0x30, 0x33, 0x33, 0x1E},   // U+006A (j)
-    { 0x07, 0x06, 0x66, 0x36, 0x1E, 0x36, 0x67, 0x00},   // U+006B (k)
-    { 0x0E, 0x0C, 0x0C, 0x0C, 0x0C, 0x0C, 0x1E, 0x00},   // U+006C (l)
-    { 0x00, 0x00, 0x33, 0x7F, 0x7F, 0x6B, 0x63, 0x00},   // U+006D (m)
-    { 0x00, 0x00, 0x1F, 0x33, 0x33, 0x33, 0x33, 0x00},   // U+006E (n)
-    { 0x00, 0x00, 0x1E, 0x33, 0x33, 0x33, 0x1E, 0x00},   // U+006F (o)
-    { 0x00, 0x00, 0x3B, 0x66, 0x66, 0x3E, 0x06, 0x0F},   // U+0070 (p)
-    { 0x00, 0x00, 0x6E, 0x33, 0x33, 0x3E, 0x30, 0x78},   // U+0071 (q)
-    { 0x00, 0x00, 0x3B, 0x6E, 0x66, 0x06, 0x0F, 0x00},   // U+0072 (r)
-    { 0x00, 0x00, 0x3E, 0x03, 0x1E, 0x30, 0x1F, 0x00},   // U+0073 (s)
-    { 0x08, 0x0C, 0x3E, 0x0C, 0x0C, 0x2C, 0x18, 0x00},   // U+0074 (t)
-    { 0x00, 0x00, 0x33, 0x33, 0x33, 0x33, 0x6E, 0x00},   // U+0075 (u)
-    { 0x00, 0x00, 0x33, 0x33, 0x33, 0x1E, 0x0C, 0x00},   // U+0076 (v)
-    { 0x00, 0x00, 0x63, 0x6B, 0x7F, 0x7F, 0x36, 0x00},   // U+0077 (w)
-    { 0x00, 0x00, 0x63, 0x36, 0x1C, 0x36, 0x63, 0x00},   // U+0078 (x)
-    { 0x00, 0x00, 0x33, 0x33, 0x33, 0x3E, 0x30, 0x1F},   // U+0079 (y)
-    { 0x00, 0x00, 0x3F, 0x19, 0x0C, 0x26, 0x3F, 0x00},   // U+007A (z)
-    { 0x38, 0x0C, 0x0C, 0x07, 0x0C, 0x0C, 0x38, 0x00},   // U+007B ({)
-    { 0x18, 0x18, 0x18, 0x00, 0x18, 0x18, 0x18, 0x00},   // U+007C (|)
-    { 0x07, 0x0C, 0x0C, 0x38, 0x0C, 0x0C, 0x07, 0x00},   // U+007D (})
-    { 0x6E, 0x3B, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},   // U+007E (~)
-    { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00}    // U+007F
-};
+          static void drawChar(SDL_Renderer* r, int x, int y, char c, int red, int green, int blue, int scale = 2) {
+              if ((unsigned char)c > 127) c = 32;
+              const char* glyph = font8x8_basic[(unsigned char)c];
+              SDL_SetRenderDrawColor(r, red, green, blue, 255);
+              for (int row = 0; row < 8; row++) {
+                  unsigned char b = glyph[row];
+                  if (b == 0) continue;
+                  for (int col = 0; col < 8; col++) {
+                      if ((b >> col) & 1) {
+                          SDL_Rect px = { x + col * scale, y + row * scale, scale, scale };
+                          SDL_RenderFillRect(r, &px);
+                      }
+                  }
+              }
+          }
 
-static void drawChar(SDL_Renderer* r, int x, int y, char c, int red, int green, int blue, int scale = 2) {
-    if ((unsigned char)c > 127) c = 32;
-    const unsigned char* glyph = font8x8[(unsigned char)c];
-    SDL_SetRenderDrawColor(r, red, green, blue, 255);
-    for (int row = 0; row < 8; row++) {
-        unsigned char b = glyph[row];
-        if (b == 0) continue;
-        for (int col = 0; col < 8; col++) {
-            if ((b >> col) & 1) {
-                SDL_Rect px = { x + col * scale, y + row * scale, scale, scale };
-                SDL_RenderFillRect(r, &px);
-            }
-        }
-    }
-}
+          static void drawText(SDL_Renderer* r, int x, int y, const char* str, int red, int green, int blue, int scale = 2) {
+              if (!str) return;
+              int curX = x;
+              int curY = y;
+              while (*str) {
+                  if (*str == 10) {
+                      curY += 9 * scale;
+                      curX = x;
+                  } else {
+                      drawChar(r, curX, curY, *str, red, green, blue, scale);
+                      curX += 8 * scale;
+                  }
+                  str++;
+              }
+          }
+          EOF
 
-static void drawText(SDL_Renderer* r, int x, int y, const char* str, int red, int green, int blue, int scale = 2) {
-    if (!str) return;
-    int curX = x;
-    int curY = y;
-    while (*str) {
-        if (*str == 10) {
-            curY += 9 * scale;
-            curX = x;
-        } else {
-            drawChar(r, curX, curY, *str, red, green, blue, scale);
-            curX += 8 * scale;
-        }
-        str++;
-    }
-}
-EOF
-
-          # 2. Header M3U pour GoldPlayer
+          # 3. Header M3U pour GoldPlayer
           cat > SDL2/m3u.hpp <<'EOF'
-#pragma once
-#include <string>
-#include <vector>
+          #pragma once
+          #include <string>
+          #include <vector>
 
-struct Channel {
-    std::string name;
-    std::string url;
-    std::string group;
-    std::string tvgId;
-    std::string tvgName;
-    std::string logo;
-};
+          struct Channel {
+              std::string name;
+              std::string url;
+              std::string group;
+              std::string tvgId;
+              std::string tvgName;
+              std::string logo;
+          };
 
-std::vector<Channel> parseM3U(const std::string& text);
-EOF
+          std::vector<Channel> parseM3U(const std::string& text);
+          EOF
 
-          # 3. Parseur M3U / M3U8
+          # 4. Parseur M3U / M3U8
           cat > SDL2/m3u.cpp <<'EOF'
-#include "m3u.hpp"
+          #include "m3u.hpp"
 
-static std::string trim(const std::string& s) {
-    size_t a = 0, b = s.size();
-    while (a < b && (s[a] == ' ' || s[a] == '\t' || s[a] == '\r' || s[a] == '\n')) a++;
-    while (b > a && (s[b-1] == ' ' || s[b-1] == '\t' || s[b-1] == '\r' || s[b-1] == '\n')) b--;
-    return s.substr(a, b - a);
-}
+          static std::string trim(const std::string& s) {
+              size_t a = 0, b = s.size();
+              while (a < b && (s[a] == ' ' || s[a] == '\t' || s[a] == '\r' || s[a] == '\n')) a++;
+              while (b > a && (s[b-1] == ' ' || s[b-1] == '\t' || s[b-1] == '\r' || s[b-1] == '\n')) b--;
+              return s.substr(a, b - a);
+          }
 
-static std::string attr(const std::string& line, const std::string& key) {
-    std::string pat = key + "=\"";
-    size_t p = line.find(pat);
-    if (p == std::string::npos) return "";
-    p += pat.size();
-    size_t e = line.find('"', p);
-    if (e == std::string::npos) return "";
-    return line.substr(p, e - p);
-}
+          static std::string attr(const std::string& line, const std::string& key) {
+              std::string pat = key + "=\"";
+              size_t p = line.find(pat);
+              if (p == std::string::npos) return "";
+              p += pat.size();
+              size_t e = line.find('"', p);
+              if (e == std::string::npos) return "";
+              return line.substr(p, e - p);
+          }
 
-std::vector<Channel> parseM3U(const std::string& textIn) {
-    std::vector<Channel> out;
-    std::string text = textIn;
-    if (text.size() >= 3 && (unsigned char)text[0] == 0xEF && (unsigned char)text[1] == 0xBB && (unsigned char)text[2] == 0xBF) {
-        text.erase(0, 3);
-    }
-    Channel cur;
-    bool pending = false;
-    size_t pos = 0;
-    while (pos <= text.size()) {
-        size_t nl = text.find('\n', pos);
-        if (nl == std::string::npos) nl = text.size();
-        std::string line = trim(text.substr(pos, nl - pos));
-        pos = nl + 1;
-        if (line.empty()) continue;
-        if (line.compare(0, 8, "#EXTINF:") == 0) {
-            cur = Channel();
-            pending = true;
-            cur.tvgId = attr(line, "tvg-id");
-            cur.tvgName = attr(line, "tvg-name");
-            cur.logo = attr(line, "tvg-logo");
-            cur.group = attr(line, "group-title");
-            size_t q = line.rfind('"');
-            size_t c = line.find(',', q == std::string::npos ? 0 : q);
-            if (c != std::string::npos) cur.name = trim(line.substr(c + 1));
-            if (cur.name.empty()) cur.name = cur.tvgName;
-        } else if (line.compare(0, 8, "#EXTGRP:") == 0) {
-            if (pending && cur.group.empty()) cur.group = trim(line.substr(8));
-        } else if (line[0] != '#') {
-            if (!pending) { cur = Channel(); cur.name = line; }
-            cur.url = line;
-            out.push_back(cur);
-            pending = false;
-        }
-    }
-    return out;
-}
-EOF
+          std::vector<Channel> parseM3U(const std::string& textIn) {
+              std::vector<Channel> out;
+              std::string text = textIn;
+              if (text.size() >= 3 && (unsigned char)text[0] == 0xEF && (unsigned char)text[1] == 0xBB && (unsigned char)text[2] == 0xBF) {
+                  text.erase(0, 3);
+              }
+              Channel cur;
+              bool pending = false;
+              size_t pos = 0;
+              while (pos <= text.size()) {
+                  size_t nl = text.find('\n', pos);
+                  if (nl == std::string::npos) nl = text.size();
+                  std::string line = trim(text.substr(pos, nl - pos));
+                  pos = nl + 1;
+                  if (line.empty()) continue;
+                  if (line.compare(0, 8, "#EXTINF:") == 0) {
+                      cur = Channel();
+                      pending = true;
+                      cur.tvgId = attr(line, "tvg-id");
+                      cur.tvgName = attr(line, "tvg-name");
+                      cur.logo = attr(line, "tvg-logo");
+                      cur.group = attr(line, "group-title");
+                      size_t q = line.rfind('"');
+                      size_t c = line.find(',', q == std::string::npos ? 0 : q);
+                      if (c != std::string::npos) cur.name = trim(line.substr(c + 1));
+                      if (cur.name.empty()) cur.name = cur.tvgName;
+                  } else if (line.compare(0, 8, "#EXTGRP:") == 0) {
+                      if (pending && cur.group.empty()) cur.group = trim(line.substr(8));
+                  } else if (line[0] != '#') {
+                      if (!pending) { cur = Channel(); cur.name = line; }
+                      cur.url = line;
+                      out.push_back(cur);
+                      pending = false;
+                  }
+              }
+              return out;
+          }
+          EOF
 
-          # 4. Code C++ complet de GoldPlayer avec Moteur de Rendu Texte
+          # 5. Code C++ complet de GoldPlayer avec Moteur de Rendu Texte
           cat > SDL2/main.cpp <<'EOF'
-#include <sstream>
-#include <cstdio>
-#include <cstring>
-#include <vector>
-#include <string>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include <unistd.h>
-#include <orbis/libkernel.h>
-#include <orbis/Sysmodule.h>
-
-#include "Game.h"
-#include "../../_common/log.h"
-#include "font.hpp"
-#include "m3u.hpp"
-
-#define FRAME_WIDTH     1920
-#define FRAME_HEIGHT    1080
-
-std::stringstream debugLogStream;
-SDL_Window* window = NULL;
-SDL_Renderer* renderer = NULL;
-
-static void drawRect(SDL_Renderer* r, int x, int y, int w, int h, int cr, int cg, int cb, int a = 255) {
-    SDL_SetRenderDrawColor(r, cr, cg, cb, a);
-    SDL_Rect q = {x, y, w, h};
-    SDL_RenderFillRect(r, &q);
-}
-
-static void drawBorder(SDL_Renderer* r, int x, int y, int w, int h, int border, int cr, int cg, int cb) {
-    drawRect(r, x, y, w, border, cr, cg, cb);
-    drawRect(r, x, y + h - border, w, border, cr, cg, cb);
-    drawRect(r, x, y, border, h, cr, cg, cb);
-    drawRect(r, x + w - border, y, border, h, cr, cg, cb);
-}
-
-struct PS4GameItem {
-    const char* titleId;
-    const char* name;
-    const char* size;
-    const char* location;
-};
-
-struct MediaFileItem {
-    const char* name;
-    const char* path;
-    const char* duration;
-    const char* format;
-};
-
-static const PS4GameItem g_games[] = {
-    {"CUSA07410", "God of War", "45.3 Go", "/user/app"},
-    {"CUSA03173", "Bloodborne", "29.8 Go", "/user/app"},
-    {"CUSA10249", "The Last of Us Part II", "78.4 Go", "/user/app"},
-    {"CUSA05855", "Ghost of Tsushima", "59.2 Go", "/mnt/usb0"},
-    {"CUSA11993", "Marvel's Spider-Man", "52.1 Go", "/user/app"},
-    {"CUSA18534", "Elden Ring", "44.9 Go", "/mnt/usb0"}
-};
-static const int g_gamesCount = 6;
-
-static const MediaFileItem g_files[] = {
-    {"Tears_of_Steel_UHD.mp4", "/mnt/usb0/Films/Tears_of_Steel_UHD.mp4", "12:14", "MP4"},
-    {"Big_Buck_Bunny_1080p.mp4", "/mnt/usb0/Animation/Big_Buck_Bunny.mp4", "09:56", "MP4"},
-    {"Sintel_Dragon_FullHD.mkv", "/mnt/usb1/Films/Sintel.mkv", "15:22", "MKV"},
-    {"Concert_Live_Session.ts", "/mnt/usb0/Musique/Concert.ts", "45:10", "TS"}
-};
-static const int g_filesCount = 4;
-
-static const char* defaultM3U =
-    "#EXTM3U\n"
-    "#EXTINF:-1 group-title=\"Actualites\",France 24 HD (Francais)\n"
-    "https://cdn-france24.akamaized.net/hls/live/2030278/f24_fra/master.m3u8\n"
-    "#EXTINF:-1 group-title=\"Actualites\",Euronews Francais HD\n"
-    "https://euronews-euronews-french-3-fr.samsung.wurl.tv/playlist.m3u8\n"
-    "#EXTINF:-1 group-title=\"Documentaires\",NASA TV HD (Espace)\n"
-    "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8\n"
-    "#EXTINF:-1 group-title=\"Sports\",Red Bull TV HD\n"
-    "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8\n"
-    "#EXTINF:-1 group-title=\"Culture\",Arte Concert Live\n"
-    "https://artelive-lh.akamaihd.net/i/artelive_de@393591/master.m3u8\n";
-
-static bool launchTitleViaGoldHEN(const char* titleId) {
-    DEBUGLOG << "GoldPlayer: Envoi requete GoldHEN pour " << titleId;
-    int sock = socket(AF_INET, SOCK_STREAM, 0);
-    if (sock < 0) return false;
-
-    struct sockaddr_in serv_addr;
-    memset(&serv_addr, 0, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    serv_addr.sin_port = htons(2128);
-    serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
-
-    struct timeval tv;
-    tv.tv_sec = 1;
-    tv.tv_usec = 0;
-    setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
-    setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof tv);
-
-    if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) >= 0) {
-        char req[256];
-        snprintf(req, sizeof(req), "GET /api/launch_title?title_id=%s HTTP/1.1\r\nHost: 127.0.0.1:2128\r\nConnection: close\r\n\r\n", titleId);
-        send(sock, req, strlen(req), 0);
-    }
-    close(sock);
-    return true;
-}
-
-int main(int argc, char* args[]) {
-    int rc;
-    SDL_Surface* windowSurface;
-    setvbuf(stdout, NULL, _IONBF, 0);
-
-    DEBUGLOG << "GoldPlayer: Initialisation...";
-
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
-        return -1;
-    }
-
-    rc = sceSysmoduleLoadModule(ORBIS_SYSMODULE_FREETYPE_OL);
-    if (rc >= 0) {
-        FT_Init_FreeType(&ftLib);
-    }
-
-    window = SDL_CreateWindow("GoldPlayer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, FRAME_WIDTH, FRAME_HEIGHT, 0);
-    if (!window) return -1;
-
-    windowSurface = SDL_GetWindowSurface(window);
-    renderer = SDL_CreateSoftwareRenderer(windowSurface);
-    if (!renderer) return -1;
-
-    SDL_Joystick* joy = NULL;
-    if (SDL_NumJoysticks() > 0) joy = SDL_JoystickOpen(0);
-
-    std::vector<Channel> channels = parseM3U(defaultM3U);
-
-    int currentTab = 0; // 0: Accueil/Jeux, 1: IPTV, 2: USB, 3: A propos
-    int selectedIndex = 0;
-    bool isRunning = true;
-    char launchBanner[128] = "";
-    int bannerTimer = 0;
-
-    const char* tabNames[4] = {"JEUX PS4", "IPTV LIVE", "DISQUES USB", "A PROPOS"};
-
-    while (isRunning) {
-        SDL_Event e;
-        while (SDL_PollEvent(&e)) {
-            if (e.type == SDL_QUIT) isRunning = false;
-
-            // Support Clavier (PC / PS4 Keyboard)
-            if (e.type == SDL_KEYDOWN) {
-                if (e.key.keysym.sym == SDLK_ESCAPE) isRunning = false;
-                if (e.key.keysym.sym == SDLK_LEFT) { currentTab = (currentTab + 3) % 4; selectedIndex = 0; }
-                if (e.key.keysym.sym == SDLK_RIGHT) { currentTab = (currentTab + 1) % 4; selectedIndex = 0; }
-                if (e.key.keysym.sym == SDLK_UP && selectedIndex > 0) selectedIndex--;
-                if (e.key.keysym.sym == SDLK_DOWN) selectedIndex++;
-                if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
-                    if (currentTab == 0 && selectedIndex < g_gamesCount) {
-                        launchTitleViaGoldHEN(g_games[selectedIndex].titleId);
-                        snprintf(launchBanner, sizeof(launchBanner), "Lancement de %s (%s)...", g_games[selectedIndex].name, g_games[selectedIndex].titleId);
-                        bannerTimer = 200;
-                    }
-                }
-            }
-
-            // Support Manette DualShock 4
-            if (e.type == SDL_JOYBUTTONDOWN) {
-                // Bouton 0 (Croix) = Lancer / Valider
-                if (e.jbutton.button == 0) {
-                    if (currentTab == 0 && selectedIndex < g_gamesCount) {
-                        launchTitleViaGoldHEN(g_games[selectedIndex].titleId);
-                        snprintf(launchBanner, sizeof(launchBanner), "Lancement de %s (%s)...", g_games[selectedIndex].name, g_games[selectedIndex].titleId);
-                        bannerTimer = 200;
-                    }
-                }
-                // Bouton 4 (L1) & 5 (R1) = Onglets
-                if (e.jbutton.button == 4) { currentTab = (currentTab + 3) % 4; selectedIndex = 0; }
-                if (e.jbutton.button == 5) { currentTab = (currentTab + 1) % 4; selectedIndex = 0; }
-            }
-
-            if (e.type == SDL_JOYHATMOTION) {
-                if (e.jhat.value == SDL_HAT_UP && selectedIndex > 0) selectedIndex--;
-                if (e.jhat.value == SDL_HAT_DOWN) selectedIndex++;
-                if (e.jhat.value == SDL_HAT_LEFT) { currentTab = (currentTab + 3) % 4; selectedIndex = 0; }
-                if (e.jhat.value == SDL_HAT_RIGHT) { currentTab = (currentTab + 1) % 4; selectedIndex = 0; }
-            }
-        }
-
-        // 1. Fond Obsidian Sombre
-        drawRect(renderer, 0, 0, FRAME_WIDTH, FRAME_HEIGHT, 11, 14, 20);
-
-        // 2. Barre Superieure
-        drawRect(renderer, 0, 0, FRAME_WIDTH, 80, 18, 24, 34);
-        drawBorder(renderer, 0, 78, FRAME_WIDTH, 2, 2, 35, 45, 65);
-
-        // Logo GoldPlayer & Titre Principal
-        drawRect(renderer, 60, 20, 40, 40, 234, 179, 8);
-        drawText(renderer, 73, 28, "G", 10, 10, 10, 3);
-        drawText(renderer, 115, 22, "GOLDPLAYER", 234, 179, 8, 3);
-        drawText(renderer, 115, 50, "MEDIA & IPTV SUITE FOR PS4", 140, 160, 180, 1);
-
-        // Badge Statut System
-        drawBorder(renderer, 1480, 22, 380, 36, 1, 40, 180, 90);
-        drawText(renderer, 1500, 32, "PS4 JAILBREAK - GOLDHEN v2.4+", 40, 220, 100, 2);
-
-        // 3. Barre des Onglets
-        for (int t = 0; t < 4; t++) {
-            int tx = 460 + t * 240;
-            if (t == currentTab) {
-                drawRect(renderer, tx, 16, 220, 48, 234, 179, 8);
-                drawText(renderer, tx + 25, 32, tabNames[t], 10, 10, 10, 2);
-            } else {
-                drawRect(renderer, tx, 18, 220, 44, 25, 33, 47);
-                drawText(renderer, tx + 25, 32, tabNames[t], 160, 175, 195, 2);
-            }
-        }
-
-        // 4. Contenu selon l'onglet actif
-        if (currentTab == 0) {
-            // ONGLET ACCUEIL & JEUX PS4
-            drawText(renderer, 80, 110, "BIBLIOTHEQUE DE JEUX PS4 (LANCEMENT DIRECT REST API 2128)", 234, 179, 8, 2);
-
-            for (int i = 0; i < g_gamesCount; i++) {
-                int gy = 160 + i * 115;
-                bool isSel = (i == selectedIndex);
-
-                if (isSel) {
-                    drawRect(renderer, 80, gy, 1150, 95, 234, 179, 8);
-                    drawRect(renderer, 83, gy + 3, 1144, 89, 28, 36, 52);
-                } else {
-                    drawRect(renderer, 80, gy, 1150, 95, 18, 24, 34);
-                    drawBorder(renderer, 80, gy, 1150, 95, 1, 35, 45, 65);
-                }
-
-                // Vignette Jeu
-                drawRect(renderer, 95, gy + 12, 70, 70, 35, 48, 68);
-                drawText(renderer, 106, gy + 38, "PS4", 234, 179, 8, 2);
-
-                // Nom du jeu
-                drawText(renderer, 185, gy + 18, g_games[i].name, 255, 255, 255, 2);
-
-                // Meta infos
-                drawText(renderer, 185, gy + 52, g_games[i].titleId, 234, 179, 8, 2);
-                drawText(renderer, 360, gy + 52, g_games[i].size, 160, 175, 195, 2);
-                drawText(renderer, 520, gy + 52, g_games[i].location, 130, 150, 175, 2);
-
-                // Bouton Lancer a droite
-                int bx = 1030, by = gy + 22;
-                if (isSel) {
-                    drawRect(renderer, bx, by, 180, 50, 234, 179, 8);
-                    drawText(renderer, bx + 18, by + 18, "[X] LANCER", 10, 10, 10, 2);
-                } else {
-                    drawRect(renderer, bx, by, 180, 50, 30, 40, 58);
-                    drawText(renderer, bx + 18, by + 18, "[X] LANCER", 200, 210, 230, 2);
-                }
-            }
-
-            // Panneau Lateral de droite : Details du Jeu selectionne
-            int px = 1270, py = 160;
-            drawRect(renderer, px, py, 570, 680, 18, 24, 34);
-            drawBorder(renderer, px, py, 570, 680, 2, 234, 179, 8);
-
-            int selG = selectedIndex;
-            if (selG >= g_gamesCount) selG = 0;
-
-            drawText(renderer, px + 30, py + 30, "DETAILS DU TITRE", 234, 179, 8, 2);
-            drawText(renderer, px + 30, py + 70, g_games[selG].name, 255, 255, 255, 3);
-
-            drawText(renderer, px + 30, py + 140, "Title ID    :", 160, 175, 195, 2);
-            drawText(renderer, px + 200, py + 140, g_games[selG].titleId, 234, 179, 8, 2);
-
-            drawText(renderer, px + 30, py + 180, "Taille      :", 160, 175, 195, 2);
-            drawText(renderer, px + 200, py + 180, g_games[selG].size, 255, 255, 255, 2);
-
-            drawText(renderer, px + 30, py + 220, "Stockage    :", 160, 175, 195, 2);
-            drawText(renderer, px + 200, py + 220, g_games[selG].location, 255, 255, 255, 2);
-
-            drawText(renderer, px + 30, py + 280, "MOTEUR DE LANCEMENT", 234, 179, 8, 2);
-            drawText(renderer, px + 30, py + 320, "GoldHEN Server : 127.0.0.1:2128", 40, 220, 100, 2);
-            drawText(renderer, px + 30, py + 355, "Endpoint       : /api/launch_title", 180, 190, 205, 2);
-
-            drawRect(renderer, px + 30, py + 450, 510, 70, 234, 179, 8);
-            drawText(renderer, px + 70, py + 472, "APPUYER SUR CROIX [X] POUR JOUER", 10, 10, 10, 2);
-
-        } else if (currentTab == 1) {
-            // ONGLET IPTV LIVE
-            drawText(renderer, 80, 110, "FLUX IPTV EN DIRECT (PLAYLIST M3U INTUITIVE)", 234, 179, 8, 2);
-
-            int chCount = (int)channels.size();
-            if (chCount > 6) chCount = 6;
-
-            for (int i = 0; i < chCount; i++) {
-                int cy = 160 + i * 115;
-                bool isSel = (i == selectedIndex);
-
-                if (isSel) {
-                    drawRect(renderer, 80, cy, 1150, 95, 234, 179, 8);
-                    drawRect(renderer, 83, cy + 3, 1144, 89, 28, 36, 52);
-                } else {
-                    drawRect(renderer, 80, cy, 1150, 95, 18, 24, 34);
-                    drawBorder(renderer, 80, cy, 1150, 95, 1, 35, 45, 65);
-                }
-
-                // Vignette TV
-                drawRect(renderer, 95, cy + 12, 70, 70, 25, 45, 65);
-                drawText(renderer, 105, cy + 38, "TV", 40, 220, 100, 2);
-
-                // Nom de la chaine
-                drawText(renderer, 185, cy + 18, channels[i].name.c_str(), 255, 255, 255, 2);
-
-                // Groupe & Tag
-                drawText(renderer, 185, cy + 52, channels[i].group.c_str(), 234, 179, 8, 2);
-                drawText(renderer, 480, cy + 52, "Flux HLS .m3u8 1080p", 160, 175, 195, 2);
-
-                // Bouton Regarder
-                int bx = 1030, by = cy + 22;
-                if (isSel) {
-                    drawRect(renderer, bx, by, 180, 50, 40, 180, 90);
-                    drawText(renderer, bx + 15, by + 18, "[X] REGARDER", 10, 10, 10, 2);
-                } else {
-                    drawRect(renderer, bx, by, 180, 50, 30, 40, 58);
-                    drawText(renderer, bx + 15, by + 18, "[X] REGARDER", 200, 210, 230, 2);
-                }
-            }
-
-            // Panneau Lateral de droite : Stream IPTV Info
-            int px = 1270, py = 160;
-            drawRect(renderer, px, py, 570, 680, 18, 24, 34);
-            drawBorder(renderer, px, py, 570, 680, 2, 40, 180, 90);
-
-            int selC = selectedIndex;
-            if (selC >= (int)channels.size()) selC = 0;
-
-            drawText(renderer, px + 30, py + 30, "STREAM EN DIRECT", 40, 220, 100, 2);
-            if (!channels.empty()) {
-                drawText(renderer, px + 30, py + 70, channels[selC].name.c_str(), 255, 255, 255, 2);
-                drawText(renderer, px + 30, py + 130, "Categorie :", 160, 175, 195, 2);
-                drawText(renderer, px + 180, py + 130, channels[selC].group.c_str(), 234, 179, 8, 2);
-                drawText(renderer, px + 30, py + 170, "Protocole :", 160, 175, 195, 2);
-                drawText(renderer, px + 180, py + 170, "HTTP Live Streaming (HLS)", 255, 255, 255, 2);
-                drawText(renderer, px + 30, py + 210, "Qualite   :", 160, 175, 195, 2);
-                drawText(renderer, px + 180, py + 210, "1080p 60 FPS Stereo", 255, 255, 255, 2);
-
-                drawText(renderer, px + 30, py + 270, "SERVEUR DU FLUX :", 234, 179, 8, 2);
-                drawText(renderer, px + 30, py + 310, "Akamai CDN / High-Bandwidth", 180, 190, 205, 2);
-
-                drawRect(renderer, px + 30, py + 450, 510, 70, 40, 180, 90);
-                drawText(renderer, px + 80, py + 472, "APPUYER SUR [X] POUR OUVRIR LE FLUX", 10, 10, 10, 2);
-            }
-
-        } else if (currentTab == 2) {
-            // ONGLET DISQUES USB
-            drawText(renderer, 80, 110, "EXPLORATEUR DE DISQUES DURS EXTERNES USB", 234, 179, 8, 2);
-
-            // 2 Cartes de status disques
-            drawRect(renderer, 80, 150, 560, 90, 20, 28, 40);
-            drawBorder(renderer, 80, 150, 560, 90, 2, 234, 179, 8);
-            drawText(renderer, 100, 170, "DISQUE 1 : /mnt/usb0", 234, 179, 8, 2);
-            drawText(renderer, 100, 200, "Statut : Monte - 931 Go libre (NTFS / exFAT)", 180, 190, 205, 2);
-
-            drawRect(renderer, 670, 150, 560, 90, 20, 28, 40);
-            drawBorder(renderer, 670, 150, 560, 90, 1, 35, 45, 65);
-            drawText(renderer, 690, 170, "DISQUE 2 : /mnt/usb1", 234, 179, 8, 2);
-            drawText(renderer, 690, 200, "Statut : Monte - 465 Go libre (exFAT)", 180, 190, 205, 2);
-
-            // Liste de fichiers multimedia
-            for (int i = 0; i < g_filesCount; i++) {
-                int fy = 270 + i * 115;
-                bool isSel = (i == selectedIndex);
-
-                if (isSel) {
-                    drawRect(renderer, 80, fy, 1150, 95, 234, 179, 8);
-                    drawRect(renderer, 83, fy + 3, 1144, 89, 28, 36, 52);
-                } else {
-                    drawRect(renderer, 80, fy, 1150, 95, 18, 24, 34);
-                    drawBorder(renderer, 80, fy, 1150, 95, 1, 35, 45, 65);
-                }
-
-                // Vignette format
-                drawRect(renderer, 95, fy + 12, 70, 70, 35, 45, 65);
-                drawText(renderer, 105, fy + 38, g_files[i].format, 234, 179, 8, 2);
-
-                // Nom du fichier
-                drawText(renderer, 185, fy + 18, g_files[i].name, 255, 255, 255, 2);
-                drawText(renderer, 185, fy + 52, g_files[i].path, 140, 160, 180, 2);
-                drawText(renderer, 850, fy + 38, g_files[i].duration, 200, 210, 230, 2);
-
-                // Bouton Lire
-                int bx = 1030, by = fy + 22;
-                if (isSel) {
-                    drawRect(renderer, bx, by, 180, 50, 234, 179, 8);
-                    drawText(renderer, bx + 35, by + 18, "[X] LIRE", 10, 10, 10, 2);
-                } else {
-                    drawRect(renderer, bx, by, 180, 50, 30, 40, 58);
-                    drawText(renderer, bx + 35, by + 18, "[X] LIRE", 200, 210, 230, 2);
-                }
-            }
-
-            // Panneau Lateral de droite : Info Lecteur USB
-            int px = 1270, py = 150;
-            drawRect(renderer, px, py, 570, 690, 18, 24, 34);
-            drawBorder(renderer, px, py, 570, 690, 2, 234, 179, 8);
-
-            int selF = selectedIndex;
-            if (selF >= g_filesCount) selF = 0;
-
-            drawText(renderer, px + 30, py + 30, "LECTEUR HARDWARE PS4", 234, 179, 8, 2);
-            drawText(renderer, px + 30, py + 70, g_files[selF].name, 255, 255, 255, 2);
-            drawText(renderer, px + 30, py + 130, "Format      :", 160, 175, 195, 2);
-            drawText(renderer, px + 200, py + 130, g_files[selF].format, 234, 179, 8, 2);
-            drawText(renderer, px + 30, py + 170, "Duree       :", 160, 175, 195, 2);
-            drawText(renderer, px + 200, py + 170, g_files[selF].duration, 255, 255, 255, 2);
-            drawText(renderer, px + 30, py + 210, "Chemin reel :", 160, 175, 195, 2);
-            drawText(renderer, px + 30, py + 245, g_files[selF].path, 180, 190, 205, 1);
-
-            drawText(renderer, px + 30, py + 300, "CODECS COMPATIBLES :", 234, 179, 8, 2);
-            drawText(renderer, px + 30, py + 335, "H.264 / AVC, MPEG-4, AAC, AC3", 180, 190, 205, 2);
-            drawText(renderer, px + 30, py + 370, "Decodage materiel GPU PS4 fluide", 40, 220, 100, 2);
-
-            drawRect(renderer, px + 30, py + 480, 510, 70, 234, 179, 8);
-            drawText(renderer, px + 80, py + 502, "APPUYER SUR [X] POUR DEMARRER LA LECTURE", 10, 10, 10, 2);
-
-        } else if (currentTab == 3) {
-            // ONGLET A PROPOS - DJAFFAR MOURTADHOI
-            drawText(renderer, 80, 110, "INFORMATIONS SYSTEME & CREDITS DU DEVELOPPEUR", 234, 179, 8, 2);
-
-            int cx = 140, cy = 160;
-            drawRect(renderer, cx, cy, 1640, 680, 18, 24, 34);
-            drawBorder(renderer, cx, cy, 1640, 680, 2, 234, 179, 8);
-
-            // Titre Principal
-            drawText(renderer, cx + 50, cy + 40, "GOLDPLAYER POUR PLAYSTATION 4", 234, 179, 8, 3);
-            drawText(renderer, cx + 50, cy + 85, "Lecteur Multimedia, Gestionnaire IPTV & Lanceur de Jeux pour PS4 Jailbreak", 160, 175, 195, 2);
-
-            // Bloc Gauche : Coordonnees du Designer
-            drawRect(renderer, cx + 50, cy + 140, 730, 360, 24, 32, 46);
-            drawBorder(renderer, cx + 50, cy + 140, 730, 360, 1, 234, 179, 8);
-
-            drawText(renderer, cx + 80, cy + 170, "COORDONNEES DU CONCEPTEUR", 234, 179, 8, 2);
-
-            drawText(renderer, cx + 80, cy + 220, "Designer       :", 160, 175, 195, 2);
-            drawText(renderer, cx + 280, cy + 220, "DJAFFAR MOURTADHOI", 255, 255, 255, 2);
-
-            drawText(renderer, cx + 80, cy + 270, "Reseau Social  :", 160, 175, 195, 2);
-            drawText(renderer, cx + 280, cy + 270, "@Mourtadhoi.Art", 234, 179, 8, 2);
-
-            drawText(renderer, cx + 80, cy + 320, "Telephone      :", 160, 175, 195, 2);
-            drawText(renderer, cx + 280, cy + 320, "0693521495", 255, 255, 255, 2);
-
-            drawText(renderer, cx + 80, cy + 370, "Email          :", 160, 175, 195, 2);
-            drawText(renderer, cx + 280, cy + 370, "djaffar.art@gmail.com", 255, 255, 255, 2);
-
-            drawText(renderer, cx + 80, cy + 430, "Design & Architecture originale creee avec passion.", 140, 160, 180, 2);
-
-            // Bloc Droit : Informations PKG & Payload
-            drawRect(renderer, cx + 820, cy + 140, 770, 360, 24, 32, 46);
-            drawBorder(renderer, cx + 820, cy + 140, 770, 360, 1, 40, 180, 90);
-
-            drawText(renderer, cx + 850, cy + 170, "PARAMETRES SYSTEME & PACKAGE", 40, 220, 100, 2);
-
-            drawText(renderer, cx + 850, cy + 220, "Title ID       :", 160, 175, 195, 2);
-            drawText(renderer, cx + 1050, cy + 220, "GOLD00001", 234, 179, 8, 2);
-
-            drawText(renderer, cx + 850, cy + 270, "Content ID     :", 160, 175, 195, 2);
-            drawText(renderer, cx + 1050, cy + 270, "IV0000-GOLD00001_00-GOLDPLAYER000000", 255, 255, 255, 1);
-
-            drawText(renderer, cx + 850, cy + 320, "Compatibilite  :", 160, 175, 195, 2);
-            drawText(renderer, cx + 1050, cy + 320, "PS4 FW 5.05 - 11.00 (GoldHEN 2.4+)", 255, 255, 255, 2);
-
-            drawText(renderer, cx + 850, cy + 370, "API Rest Port  :", 160, 175, 195, 2);
-            drawText(renderer, cx + 1050, cy + 370, "127.0.0.1:2128 (/api/launch_title)", 40, 220, 100, 2);
-
-            drawText(renderer, cx + 850, cy + 430, "OpenOrbis Toolchain v0.5.4 - SDL2 1080p Engine", 140, 160, 180, 2);
-
-            // Bas du bloc A propos
-            drawRect(renderer, cx + 50, cy + 540, 1540, 80, 20, 26, 38);
-            drawText(renderer, cx + 80, cy + 570, "GoldPlayer est une application homebrew PS4 legere, rapide et entierement personnalisable.", 234, 179, 8, 2);
-        }
-
-        // Notification Banner Toast si une action a ete declenchee
-        if (bannerTimer > 0) {
-            bannerTimer--;
-            drawRect(renderer, 1150, 100, 690, 70, 234, 179, 8);
-            drawRect(renderer, 1153, 103, 684, 64, 20, 26, 38);
-            drawText(renderer, 1175, 115, "GoldHEN REST API : Requete envoyee !", 234, 179, 8, 2);
-            drawText(renderer, 1175, 140, launchBanner, 255, 255, 255, 2);
-        }
-
-        // 5. Barre d'Aide Manette DualShock 4
-        drawRect(renderer, 0, 1010, FRAME_WIDTH, 70, 14, 18, 26);
-        drawBorder(renderer, 0, 1010, FRAME_WIDTH, 2, 2, 35, 45, 65);
-
-        // Boutons PS4
-        drawRect(renderer, 80, 1028, 30, 30, 40, 120, 230);
-        drawText(renderer, 90, 1035, "X", 255, 255, 255, 2);
-        drawText(renderer, 125, 1035, "Lancer / Valider", 200, 210, 230, 2);
-
-        drawRect(renderer, 380, 1028, 30, 30, 230, 50, 50);
-        drawText(renderer, 390, 1035, "O", 255, 255, 255, 2);
-        drawText(renderer, 425, 1035, "Retour", 200, 210, 230, 2);
-
-        drawRect(renderer, 580, 1028, 55, 30, 50, 65, 85);
-        drawText(renderer, 590, 1035, "L1", 234, 179, 8, 2);
-        drawRect(renderer, 645, 1028, 55, 30, 50, 65, 85);
-        drawText(renderer, 655, 1035, "R1", 234, 179, 8, 2);
-        drawText(renderer, 715, 1035, "Changer d'onglet", 200, 210, 230, 2);
-
-        drawRect(renderer, 1000, 1028, 90, 30, 50, 65, 85);
-        drawText(renderer, 1010, 1035, "D-PAD", 234, 179, 8, 2);
-        drawText(renderer, 1105, 1035, "Naviguer / Selectionner", 200, 210, 230, 2);
-
-        drawText(renderer, 1580, 1035, "Designer: DJAFFAR MOURTADHOI", 234, 179, 8, 2);
-
-        SDL_UpdateWindowSurface(window);
-        SDL_Delay(16);
-    }
-
-    if (joy) SDL_JoystickClose(joy);
-    SDL_Quit();
-    return 0;
-}
-EOF
-
-          # 5. Configuration Makefile standard OpenOrbis (Clang)
+          #include <sstream>
+          #include <cstdio>
+          #include <cstring>
+          #include <vector>
+          #include <string>
+          #include <sys/socket.h>
+          #include <netinet/in.h>
+          #include <arpa/inet.h>
+          #include <unistd.h>
+          #include <orbis/libkernel.h>
+          #include <orbis/Sysmodule.h>
+
+          #include "Game.h"
+          #include "../../_common/log.h"
+          #include "font.hpp"
+          #include "m3u.hpp"
+
+          #define FRAME_WIDTH     1920
+          #define FRAME_HEIGHT    1080
+
+          std::stringstream debugLogStream;
+          SDL_Window* window = NULL;
+          SDL_Renderer* renderer = NULL;
+
+          static void drawRect(SDL_Renderer* r, int x, int y, int w, int h, int cr, int cg, int cb, int a = 255) {
+              SDL_SetRenderDrawColor(r, cr, cg, cb, a);
+              SDL_Rect q = {x, y, w, h};
+              SDL_RenderFillRect(r, &q);
+          }
+
+          static void drawBorder(SDL_Renderer* r, int x, int y, int w, int h, int border, int cr, int cg, int cb) {
+              drawRect(r, x, y, w, border, cr, cg, cb);
+              drawRect(r, x, y + h - border, w, border, cr, cg, cb);
+              drawRect(r, x, y, border, h, cr, cg, cb);
+              drawRect(r, x + w - border, y, border, h, cr, cg, cb);
+          }
+
+          struct PS4GameItem {
+              const char* titleId;
+              const char* name;
+              const char* size;
+              const char* location;
+          };
+
+          struct MediaFileItem {
+              const char* name;
+              const char* path;
+              const char* duration;
+              const char* format;
+          };
+
+          static const PS4GameItem g_games[] = {
+              {"CUSA07410", "God of War", "45.3 Go", "/user/app"},
+              {"CUSA03173", "Bloodborne", "29.8 Go", "/user/app"},
+              {"CUSA10249", "The Last of Us Part II", "78.4 Go", "/user/app"},
+              {"CUSA05855", "Ghost of Tsushima", "59.2 Go", "/mnt/usb0"},
+              {"CUSA11993", "Marvel's Spider-Man", "52.1 Go", "/user/app"},
+              {"CUSA18534", "Elden Ring", "44.9 Go", "/mnt/usb0"}
+          };
+          static const int g_gamesCount = 6;
+
+          static const MediaFileItem g_files[] = {
+              {"Tears_of_Steel_UHD.mp4", "/mnt/usb0/Films/Tears_of_Steel_UHD.mp4", "12:14", "MP4"},
+              {"Big_Buck_Bunny_1080p.mp4", "/mnt/usb0/Animation/Big_Buck_Bunny.mp4", "09:56", "MP4"},
+              {"Sintel_Dragon_FullHD.mkv", "/mnt/usb1/Films/Sintel.mkv", "15:22", "MKV"},
+              {"Concert_Live_Session.ts", "/mnt/usb0/Musique/Concert.ts", "45:10", "TS"}
+          };
+          static const int g_filesCount = 4;
+
+          static const char* defaultM3U =
+              "#EXTM3U\n"
+              "#EXTINF:-1 group-title=\"Actualites\",France 24 HD (Francais)\n"
+              "https://cdn-france24.akamaized.net/hls/live/2030278/f24_fra/master.m3u8\n"
+              "#EXTINF:-1 group-title=\"Actualites\",Euronews Francais HD\n"
+              "https://euronews-euronews-french-3-fr.samsung.wurl.tv/playlist.m3u8\n"
+              "#EXTINF:-1 group-title=\"Documentaires\",NASA TV HD (Espace)\n"
+              "https://ntv1.akamaized.net/hls/live/2014075/NASA-NTV1-HLS/master.m3u8\n"
+              "#EXTINF:-1 group-title=\"Sports\",Red Bull TV HD\n"
+              "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8\n"
+              "#EXTINF:-1 group-title=\"Culture\",Arte Concert Live\n"
+              "https://artelive-lh.akamaihd.net/i/artelive_de@393591/master.m3u8\n";
+
+          static bool launchTitleViaGoldHEN(const char* titleId) {
+              DEBUGLOG << "GoldPlayer: Envoi requete GoldHEN pour " << titleId;
+              int sock = socket(AF_INET, SOCK_STREAM, 0);
+              if (sock < 0) return false;
+
+              struct sockaddr_in serv_addr;
+              memset(&serv_addr, 0, sizeof(serv_addr));
+              serv_addr.sin_family = AF_INET;
+              serv_addr.sin_port = htons(2128);
+              serv_addr.sin_addr.s_addr = inet_addr("127.0.0.1");
+
+              struct timeval tv;
+              tv.tv_sec = 1;
+              tv.tv_usec = 0;
+              setsockopt(sock, SOL_SOCKET, SO_RCVTIMEO, (const char*)&tv, sizeof tv);
+              setsockopt(sock, SOL_SOCKET, SO_SNDTIMEO, (const char*)&tv, sizeof tv);
+
+              if (connect(sock, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) >= 0) {
+                  char req[256];
+                  snprintf(req, sizeof(req), "GET /api/launch_title?title_id=%s HTTP/1.1\r\nHost: 127.0.0.1:2128\r\nConnection: close\r\n\r\n", titleId);
+                  send(sock, req, strlen(req), 0);
+              }
+              close(sock);
+              return true;
+          }
+
+          int main(int argc, char* args[]) {
+              int rc;
+              SDL_Surface* windowSurface;
+              setvbuf(stdout, NULL, _IONBF, 0);
+
+              DEBUGLOG << "GoldPlayer: Initialisation...";
+
+              if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) != 0) {
+                  return -1;
+              }
+
+              rc = sceSysmoduleLoadModule(ORBIS_SYSMODULE_FREETYPE_OL);
+              if (rc >= 0) {
+                  FT_Init_FreeType(&ftLib);
+              }
+
+              window = SDL_CreateWindow("GoldPlayer", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, FRAME_WIDTH, FRAME_HEIGHT, 0);
+              if (!window) return -1;
+
+              windowSurface = SDL_GetWindowSurface(window);
+              renderer = SDL_CreateSoftwareRenderer(windowSurface);
+              if (!renderer) return -1;
+
+              SDL_Joystick* joy = NULL;
+              if (SDL_NumJoysticks() > 0) joy = SDL_JoystickOpen(0);
+
+              std::vector<Channel> channels = parseM3U(defaultM3U);
+
+              int currentTab = 0;
+              int selectedIndex = 0;
+              bool isRunning = true;
+              char launchBanner[128] = "";
+              int bannerTimer = 0;
+
+              const char* tabNames[4] = {"JEUX PS4", "IPTV LIVE", "DISQUES USB", "A PROPOS"};
+
+              while (isRunning) {
+                  SDL_Event e;
+                  while (SDL_PollEvent(&e)) {
+                      if (e.type == SDL_QUIT) isRunning = false;
+
+                      if (e.type == SDL_KEYDOWN) {
+                          if (e.key.keysym.sym == SDLK_ESCAPE) isRunning = false;
+                          if (e.key.keysym.sym == SDLK_LEFT) { currentTab = (currentTab + 3) % 4; selectedIndex = 0; }
+                          if (e.key.keysym.sym == SDLK_RIGHT) { currentTab = (currentTab + 1) % 4; selectedIndex = 0; }
+                          if (e.key.keysym.sym == SDLK_UP && selectedIndex > 0) selectedIndex--;
+                          if (e.key.keysym.sym == SDLK_DOWN) selectedIndex++;
+                          if (e.key.keysym.sym == SDLK_RETURN || e.key.keysym.sym == SDLK_SPACE) {
+                              if (currentTab == 0 && selectedIndex < g_gamesCount) {
+                                  launchTitleViaGoldHEN(g_games[selectedIndex].titleId);
+                                  snprintf(launchBanner, sizeof(launchBanner), "Lancement de %s (%s)...", g_games[selectedIndex].name, g_games[selectedIndex].titleId);
+                                  bannerTimer = 200;
+                              }
+                          }
+                      }
+
+                      if (e.type == SDL_JOYBUTTONDOWN) {
+                          if (e.jbutton.button == 0) {
+                              if (currentTab == 0 && selectedIndex < g_gamesCount) {
+                                  launchTitleViaGoldHEN(g_games[selectedIndex].titleId);
+                                  snprintf(launchBanner, sizeof(launchBanner), "Lancement de %s (%s)...", g_games[selectedIndex].name, g_games[selectedIndex].titleId);
+                                  bannerTimer = 200;
+                              }
+                          }
+                          if (e.jbutton.button == 4) { currentTab = (currentTab + 3) % 4; selectedIndex = 0; }
+                          if (e.jbutton.button == 5) { currentTab = (currentTab + 1) % 4; selectedIndex = 0; }
+                      }
+
+                      if (e.type == SDL_JOYHATMOTION) {
+                          if (e.jhat.value == SDL_HAT_UP && selectedIndex > 0) selectedIndex--;
+                          if (e.jhat.value == SDL_HAT_DOWN) selectedIndex++;
+                          if (e.jhat.value == SDL_HAT_LEFT) { currentTab = (currentTab + 3) % 4; selectedIndex = 0; }
+                          if (e.jhat.value == SDL_HAT_RIGHT) { currentTab = (currentTab + 1) % 4; selectedIndex = 0; }
+                      }
+                  }
+
+                  drawRect(renderer, 0, 0, FRAME_WIDTH, FRAME_HEIGHT, 11, 14, 20);
+
+                  drawRect(renderer, 0, 0, FRAME_WIDTH, 80, 18, 24, 34);
+                  drawBorder(renderer, 0, 78, FRAME_WIDTH, 2, 2, 35, 45, 65);
+
+                  drawRect(renderer, 60, 20, 40, 40, 234, 179, 8);
+                  drawText(renderer, 73, 28, "G", 10, 10, 10, 3);
+                  drawText(renderer, 115, 22, "GOLDPLAYER", 234, 179, 8, 3);
+                  drawText(renderer, 115, 50, "MEDIA & IPTV SUITE FOR PS4", 140, 160, 180, 1);
+
+                  drawBorder(renderer, 1480, 22, 380, 36, 1, 40, 180, 90);
+                  drawText(renderer, 1500, 32, "PS4 JAILBREAK - GOLDHEN v2.4+", 40, 220, 100, 2);
+
+                  for (int t = 0; t < 4; t++) {
+                      int tx = 460 + t * 240;
+                      if (t == currentTab) {
+                          drawRect(renderer, tx, 16, 220, 48, 234, 179, 8);
+                          drawText(renderer, tx + 25, 32, tabNames[t], 10, 10, 10, 2);
+                      } else {
+                          drawRect(renderer, tx, 18, 220, 44, 25, 33, 47);
+                          drawText(renderer, tx + 25, 32, tabNames[t], 160, 175, 195, 2);
+                      }
+                  }
+
+                  if (currentTab == 0) {
+                      drawText(renderer, 80, 110, "BIBLIOTHEQUE DE JEUX PS4 (LANCEMENT DIRECT REST API 2128)", 234, 179, 8, 2);
+
+                      for (int i = 0; i < g_gamesCount; i++) {
+                          int gy = 160 + i * 115;
+                          bool isSel = (i == selectedIndex);
+
+                          if (isSel) {
+                              drawRect(renderer, 80, gy, 1150, 95, 234, 179, 8);
+                              drawRect(renderer, 83, gy + 3, 1144, 89, 28, 36, 52);
+                          } else {
+                              drawRect(renderer, 80, gy, 1150, 95, 18, 24, 34);
+                              drawBorder(renderer, 80, gy, 1150, 95, 1, 35, 45, 65);
+                          }
+
+                          drawRect(renderer, 95, gy + 12, 70, 70, 35, 48, 68);
+                          drawText(renderer, 106, gy + 38, "PS4", 234, 179, 8, 2);
+
+                          drawText(renderer, 185, gy + 18, g_games[i].name, 255, 255, 255, 2);
+                          drawText(renderer, 185, gy + 52, g_games[i].titleId, 234, 179, 8, 2);
+                          drawText(renderer, 360, gy + 52, g_games[i].size, 160, 175, 195, 2);
+                          drawText(renderer, 520, gy + 52, g_games[i].location, 130, 150, 175, 2);
+
+                          int bx = 1030, by = gy + 22;
+                          if (isSel) {
+                              drawRect(renderer, bx, by, 180, 50, 234, 179, 8);
+                              drawText(renderer, bx + 18, by + 18, "[X] LANCER", 10, 10, 10, 2);
+                          } else {
+                              drawRect(renderer, bx, by, 180, 50, 30, 40, 58);
+                              drawText(renderer, bx + 18, by + 18, "[X] LANCER", 200, 210, 230, 2);
+                          }
+                      }
+
+                      int px = 1270, py = 160;
+                      drawRect(renderer, px, py, 570, 680, 18, 24, 34);
+                      drawBorder(renderer, px, py, 570, 680, 2, 234, 179, 8);
+
+                      int selG = selectedIndex;
+                      if (selG >= g_gamesCount) selG = 0;
+
+                      drawText(renderer, px + 30, py + 30, "DETAILS DU TITRE", 234, 179, 8, 2);
+                      drawText(renderer, px + 30, py + 70, g_games[selG].name, 255, 255, 255, 3);
+
+                      drawText(renderer, px + 30, py + 140, "Title ID    :", 160, 175, 195, 2);
+                      drawText(renderer, px + 200, py + 140, g_games[selG].titleId, 234, 179, 8, 2);
+
+                      drawText(renderer, px + 30, py + 180, "Taille      :", 160, 175, 195, 2);
+                      drawText(renderer, px + 200, py + 180, g_games[selG].size, 255, 255, 255, 2);
+
+                      drawText(renderer, px + 30, py + 220, "Stockage    :", 160, 175, 195, 2);
+                      drawText(renderer, px + 200, py + 220, g_games[selG].location, 255, 255, 255, 2);
+
+                      drawText(renderer, px + 30, py + 280, "MOTEUR DE LANCEMENT", 234, 179, 8, 2);
+                      drawText(renderer, px + 30, py + 320, "GoldHEN Server : 127.0.0.1:2128", 40, 220, 100, 2);
+                      drawText(renderer, px + 30, py + 355, "Endpoint       : /api/launch_title", 180, 190, 205, 2);
+
+                      drawRect(renderer, px + 30, py + 450, 510, 70, 234, 179, 8);
+                      drawText(renderer, px + 70, py + 472, "APPUYER SUR CROIX [X] POUR JOUER", 10, 10, 10, 2);
+
+                  } else if (currentTab == 1) {
+                      drawText(renderer, 80, 110, "FLUX IPTV EN DIRECT (PLAYLIST M3U INTUITIVE)", 234, 179, 8, 2);
+
+                      int chCount = (int)channels.size();
+                      if (chCount > 6) chCount = 6;
+
+                      for (int i = 0; i < chCount; i++) {
+                          int cy = 160 + i * 115;
+                          bool isSel = (i == selectedIndex);
+
+                          if (isSel) {
+                              drawRect(renderer, 80, cy, 1150, 95, 234, 179, 8);
+                              drawRect(renderer, 83, cy + 3, 1144, 89, 28, 36, 52);
+                          } else {
+                              drawRect(renderer, 80, cy, 1150, 95, 18, 24, 34);
+                              drawBorder(renderer, 80, cy, 1150, 95, 1, 35, 45, 65);
+                          }
+
+                          drawRect(renderer, 95, cy + 12, 70, 70, 25, 45, 65);
+                          drawText(renderer, 105, cy + 38, "TV", 40, 220, 100, 2);
+
+                          drawText(renderer, 185, cy + 18, channels[i].name.c_str(), 255, 255, 255, 2);
+                          drawText(renderer, 185, cy + 52, channels[i].group.c_str(), 234, 179, 8, 2);
+                          drawText(renderer, 480, cy + 52, "Flux HLS .m3u8 1080p", 160, 175, 195, 2);
+
+                          int bx = 1030, by = cy + 22;
+                          if (isSel) {
+                              drawRect(renderer, bx, by, 180, 50, 40, 180, 90);
+                              drawText(renderer, bx + 15, by + 18, "[X] REGARDER", 10, 10, 10, 2);
+                          } else {
+                              drawRect(renderer, bx, by, 180, 50, 30, 40, 58);
+                              drawText(renderer, bx + 15, by + 18, "[X] REGARDER", 200, 210, 230, 2);
+                          }
+                      }
+
+                      int px = 1270, py = 160;
+                      drawRect(renderer, px, py, 570, 680, 18, 24, 34);
+                      drawBorder(renderer, px, py, 570, 680, 2, 40, 180, 90);
+
+                      int selC = selectedIndex;
+                      if (selC >= (int)channels.size()) selC = 0;
+
+                      drawText(renderer, px + 30, py + 30, "STREAM EN DIRECT", 40, 220, 100, 2);
+                      if (!channels.empty()) {
+                          drawText(renderer, px + 30, py + 70, channels[selC].name.c_str(), 255, 255, 255, 2);
+                          drawText(renderer, px + 30, py + 130, "Categorie :", 160, 175, 195, 2);
+                          drawText(renderer, px + 180, py + 130, channels[selC].group.c_str(), 234, 179, 8, 2);
+                          drawText(renderer, px + 30, py + 170, "Protocole :", 160, 175, 195, 2);
+                          drawText(renderer, px + 180, py + 170, "HTTP Live Streaming (HLS)", 255, 255, 255, 2);
+                          drawText(renderer, px + 30, py + 210, "Qualite   :", 160, 175, 195, 2);
+                          drawText(renderer, px + 180, py + 210, "1080p 60 FPS Stereo", 255, 255, 255, 2);
+
+                          drawText(renderer, px + 30, py + 270, "SERVEUR DU FLUX :", 234, 179, 8, 2);
+                          drawText(renderer, px + 30, py + 310, "Akamai CDN / High-Bandwidth", 180, 190, 205, 2);
+
+                          drawRect(renderer, px + 30, py + 450, 510, 70, 40, 180, 90);
+                          drawText(renderer, px + 80, py + 472, "APPUYER SUR [X] POUR OUVRIR LE FLUX", 10, 10, 10, 2);
+                      }
+
+                  } else if (currentTab == 2) {
+                      drawText(renderer, 80, 110, "EXPLORATEUR DE DISQUES DURS EXTERNES USB", 234, 179, 8, 2);
+
+                      drawRect(renderer, 80, 150, 560, 90, 20, 28, 40);
+                      drawBorder(renderer, 80, 150, 560, 90, 2, 234, 179, 8);
+                      drawText(renderer, 100, 170, "DISQUE 1 : /mnt/usb0", 234, 179, 8, 2);
+                      drawText(renderer, 100, 200, "Statut : Monte - 931 Go libre (NTFS / exFAT)", 180, 190, 205, 2);
+
+                      drawRect(renderer, 670, 150, 560, 90, 20, 28, 40);
+                      drawBorder(renderer, 670, 150, 560, 90, 1, 35, 45, 65);
+                      drawText(renderer, 690, 170, "DISQUE 2 : /mnt/usb1", 234, 179, 8, 2);
+                      drawText(renderer, 690, 200, "Statut : Monte - 465 Go libre (exFAT)", 180, 190, 205, 2);
+
+                      for (int i = 0; i < g_filesCount; i++) {
+                          int fy = 270 + i * 115;
+                          bool isSel = (i == selectedIndex);
+
+                          if (isSel) {
+                              drawRect(renderer, 80, fy, 1150, 95, 234, 179, 8);
+                              drawRect(renderer, 83, fy + 3, 1144, 89, 28, 36, 52);
+                          } else {
+                              drawRect(renderer, 80, fy, 1150, 95, 18, 24, 34);
+                              drawBorder(renderer, 80, fy, 1150, 95, 1, 35, 45, 65);
+                          }
+
+                          drawRect(renderer, 95, fy + 12, 70, 70, 35, 45, 65);
+                          drawText(renderer, 105, fy + 38, g_files[i].format, 234, 179, 8, 2);
+
+                          drawText(renderer, 185, fy + 18, g_files[i].name, 255, 255, 255, 2);
+                          drawText(renderer, 185, fy + 52, g_files[i].path, 140, 160, 180, 2);
+                          drawText(renderer, 850, fy + 38, g_files[i].duration, 200, 210, 230, 2);
+
+                          int bx = 1030, by = fy + 22;
+                          if (isSel) {
+                              drawRect(renderer, bx, by, 180, 50, 234, 179, 8);
+                              drawText(renderer, bx + 35, by + 18, "[X] LIRE", 10, 10, 10, 2);
+                          } else {
+                              drawRect(renderer, bx, by, 180, 50, 30, 40, 58);
+                              drawText(renderer, bx + 35, by + 18, "[X] LIRE", 200, 210, 230, 2);
+                          }
+                      }
+
+                      int px = 1270, py = 150;
+                      drawRect(renderer, px, py, 570, 690, 18, 24, 34);
+                      drawBorder(renderer, px, py, 570, 690, 2, 234, 179, 8);
+
+                      int selF = selectedIndex;
+                      if (selF >= g_filesCount) selF = 0;
+
+                      drawText(renderer, px + 30, py + 30, "LECTEUR HARDWARE PS4", 234, 179, 8, 2);
+                      drawText(renderer, px + 30, py + 70, g_files[selF].name, 255, 255, 255, 2);
+                      drawText(renderer, px + 30, py + 130, "Format      :", 160, 175, 195, 2);
+                      drawText(renderer, px + 200, py + 130, g_files[selF].format, 234, 179, 8, 2);
+                      drawText(renderer, px + 30, py + 170, "Duree       :", 160, 175, 195, 2);
+                      drawText(renderer, px + 200, py + 170, g_files[selF].duration, 255, 255, 255, 2);
+                      drawText(renderer, px + 30, py + 210, "Chemin reel :", 160, 175, 195, 2);
+                      drawText(renderer, px + 30, py + 245, g_files[selF].path, 180, 190, 205, 1);
+
+                      drawText(renderer, px + 30, py + 300, "CODECS COMPATIBLES :", 234, 179, 8, 2);
+                      drawText(renderer, px + 30, py + 335, "H.264 / AVC, MPEG-4, AAC, AC3", 180, 190, 205, 2);
+                      drawText(renderer, px + 30, py + 370, "Decodage materiel GPU PS4 fluide", 40, 220, 100, 2);
+
+                      drawRect(renderer, px + 30, py + 480, 510, 70, 234, 179, 8);
+                      drawText(renderer, px + 80, py + 502, "APPUYER SUR [X] POUR DEMARRER LA LECTURE", 10, 10, 10, 2);
+
+                  } else if (currentTab == 3) {
+                      drawText(renderer, 80, 110, "INFORMATIONS SYSTEME & CREDITS DU DEVELOPPEUR", 234, 179, 8, 2);
+
+                      int cx = 140, cy = 160;
+                      drawRect(renderer, cx, cy, 1640, 680, 18, 24, 34);
+                      drawBorder(renderer, cx, cy, 1640, 680, 2, 234, 179, 8);
+
+                      drawText(renderer, cx + 50, cy + 40, "GOLDPLAYER POUR PLAYSTATION 4", 234, 179, 8, 3);
+                      drawText(renderer, cx + 50, cy + 85, "Lecteur Multimedia, Gestionnaire IPTV & Lanceur de Jeux pour PS4 Jailbreak", 160, 175, 195, 2);
+
+                      drawRect(renderer, cx + 50, cy + 140, 730, 360, 24, 32, 46);
+                      drawBorder(renderer, cx + 50, cy + 140, 730, 360, 1, 234, 179, 8);
+
+                      drawText(renderer, cx + 80, cy + 170, "COORDONNEES DU CONCEPTEUR", 234, 179, 8, 2);
+
+                      drawText(renderer, cx + 80, cy + 220, "Designer       :", 160, 175, 195, 2);
+                      drawText(renderer, cx + 280, cy + 220, "DJAFFAR MOURTADHOI", 255, 255, 255, 2);
+
+                      drawText(renderer, cx + 80, cy + 270, "Reseau Social  :", 160, 175, 195, 2);
+                      drawText(renderer, cx + 280, cy + 270, "@Mourtadhoi.Art", 234, 179, 8, 2);
+
+                      drawText(renderer, cx + 80, cy + 320, "Telephone      :", 160, 175, 195, 2);
+                      drawText(renderer, cx + 280, cy + 320, "0693521495", 255, 255, 255, 2);
+
+                      drawText(renderer, cx + 80, cy + 370, "Email          :", 160, 175, 195, 2);
+                      drawText(renderer, cx + 280, cy + 370, "djaffar.art@gmail.com", 255, 255, 255, 2);
+
+                      drawText(renderer, cx + 80, cy + 430, "Design & Architecture originale creee avec passion.", 140, 160, 180, 2);
+
+                      drawRect(renderer, cx + 820, cy + 140, 770, 360, 24, 32, 46);
+                      drawBorder(renderer, cx + 820, cy + 140, 770, 360, 1, 40, 180, 90);
+
+                      drawText(renderer, cx + 850, cy + 170, "PARAMETRES SYSTEME & PACKAGE", 40, 220, 100, 2);
+
+                      drawText(renderer, cx + 850, cy + 220, "Title ID       :", 160, 175, 195, 2);
+                      drawText(renderer, cx + 1050, cy + 220, "GOLD00001", 234, 179, 8, 2);
+
+                      drawText(renderer, cx + 850, cy + 270, "Content ID     :", 160, 175, 195, 2);
+                      drawText(renderer, cx + 1050, cy + 270, "IV0000-GOLD00001_00-GOLDPLAYER000000", 255, 255, 255, 1);
+
+                      drawText(renderer, cx + 850, cy + 320, "Compatibilite  :", 160, 175, 195, 2);
+                      drawText(renderer, cx + 1050, cy + 320, "PS4 FW 5.05 - 11.00 (GoldHEN 2.4+)", 255, 255, 255, 2);
+
+                      drawText(renderer, cx + 850, cy + 370, "API Rest Port  :", 160, 175, 195, 2);
+                      drawText(renderer, cx + 1050, cy + 370, "127.0.0.1:2128 (/api/launch_title)", 40, 220, 100, 2);
+
+                      drawText(renderer, cx + 850, cy + 430, "OpenOrbis Toolchain v0.5.4 - SDL2 1080p Engine", 140, 160, 180, 2);
+
+                      drawRect(renderer, cx + 50, cy + 540, 1540, 80, 20, 26, 38);
+                      drawText(renderer, cx + 80, cy + 570, "GoldPlayer est une application homebrew PS4 legere, rapide et entierement personnalisable.", 234, 179, 8, 2);
+                  }
+
+                  if (bannerTimer > 0) {
+                      bannerTimer--;
+                      drawRect(renderer, 1150, 100, 690, 70, 234, 179, 8);
+                      drawRect(renderer, 1153, 103, 684, 64, 20, 26, 38);
+                      drawText(renderer, 1175, 115, "GoldHEN REST API : Requete envoyee !", 234, 179, 8, 2);
+                      drawText(renderer, 1175, 140, launchBanner, 255, 255, 255, 2);
+                  }
+
+                  drawRect(renderer, 0, 1010, FRAME_WIDTH, 70, 14, 18, 26);
+                  drawBorder(renderer, 0, 1010, FRAME_WIDTH, 2, 2, 35, 45, 65);
+
+                  drawRect(renderer, 80, 1028, 30, 30, 40, 120, 230);
+                  drawText(renderer, 90, 1035, "X", 255, 255, 255, 2);
+                  drawText(renderer, 125, 1035, "Lancer / Valider", 200, 210, 230, 2);
+
+                  drawRect(renderer, 380, 1028, 30, 30, 230, 50, 50);
+                  drawText(renderer, 390, 1035, "O", 255, 255, 255, 2);
+                  drawText(renderer, 425, 1035, "Retour", 200, 210, 230, 2);
+
+                  drawRect(renderer, 580, 1028, 55, 30, 50, 65, 85);
+                  drawText(renderer, 590, 1035, "L1", 234, 179, 8, 2);
+                  drawRect(renderer, 645, 1028, 55, 30, 50, 65, 85);
+                  drawText(renderer, 655, 1035, "R1", 234, 179, 8, 2);
+                  drawText(renderer, 715, 1035, "Changer d'onglet", 200, 210, 230, 2);
+
+                  drawRect(renderer, 1000, 1028, 90, 30, 50, 65, 85);
+                  drawText(renderer, 1010, 1035, "D-PAD", 234, 179, 8, 2);
+                  drawText(renderer, 1105, 1035, "Naviguer / Selectionner", 200, 210, 230, 2);
+
+                  drawText(renderer, 1580, 1035, "Designer: DJAFFAR MOURTADHOI", 234, 179, 8, 2);
+
+                  SDL_UpdateWindowSurface(window);
+                  SDL_Delay(16);
+              }
+
+              if (joy) SDL_JoystickClose(joy);
+              SDL_Quit();
+              return 0;
+          }
+          EOF
+
+          # 6. Configuration Makefile standard OpenOrbis (Clang)
           sed -i 's/^TITLE .*/TITLE := GoldPlayer/' Makefile
           sed -i 's/^TITLE_ID .*/TITLE_ID := GOLD00001/' Makefile
           sed -i 's/^CONTENT_ID .*/CONTENT_ID := IV0000-GOLD00001_00-GOLDPLAYER000000/' Makefile
